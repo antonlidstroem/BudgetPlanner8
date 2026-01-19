@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text;
 using System.Windows.Data;
-using BudgetPlanner.DAL.Repositories;
+using BudgetPlanner8.DAL.Repositories;
 using BudgetPlanner8.DAL.Data;
 using BudgetPlanner8.DAL.Interfaces;
 using BudgetPlanner8.DAL.Models;

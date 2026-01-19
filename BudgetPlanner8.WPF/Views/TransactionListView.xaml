@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d">
 
-    <ListView ItemsSource="{Binding Transactions}"
+    <ListView ItemsSource="{Binding TransactionsView}"
               SelectedItem="{Binding SelectedTransaction, Mode=TwoWay}">
         <ListView.View>
             <GridView>
@@ -22,11 +22,29 @@
                 <GridViewColumn Header="Återkommande" Width="110" DisplayMemberBinding="{Binding Recurrence}" />
                 <GridViewColumn Header="Månad" Width="80" DisplayMemberBinding="{Binding Month}" />
                 <GridViewColumn Header="Procentsats" Width="95" DisplayMemberBinding="{Binding Rate}" />
-                <GridViewColumn Header="Brutto" Width="95" DisplayMemberBinding="{Binding GrossAmount, StringFormat=C, TargetNullValue=''}" />
+                <GridViewColumn Header="Brutto" Width="95">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock HorizontalAlignment="Right"
+                                       Text="{Binding GrossAmount, StringFormat=C, TargetNullValue=''}"/>
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                </GridViewColumn>
                 <GridViewColumn Header="Belopp" Width="95">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding NetAmount, StringFormat={}{0:C}}"/>
+                            <TextBlock HorizontalAlignment="Right">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="{Binding NetAmount, StringFormat=C}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Type}" Value="Expense">
+                                                <Setter Property="Text" Value="{Binding NetAmount, StringFormat=-{0:C}}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
                 </GridViewColumn>

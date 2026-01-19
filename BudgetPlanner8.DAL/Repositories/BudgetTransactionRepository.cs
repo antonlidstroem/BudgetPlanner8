@@ -6,7 +6,7 @@ using BudgetPlanner8.DAL.Interfaces;
 using BudgetPlanner8.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace BudgetPlanner.DAL.Repositories
+namespace BudgetPlanner8.DAL.Repositories
 {
     public class BudgetTransactionRepository : IBudgetTransactionRepository
     {
