@@ -4,7 +4,11 @@ using System.Text;
 
 namespace BudgetPlanner8.WPF.ViewModels.Filter
 {
-    internal class ListViewFilterViewModel
+    public class ListViewFilterViewModel
     {
+        public ListViewFilterViewModel()
+        {
+            
+        }
     }
 }
