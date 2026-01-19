@@ -22,7 +22,7 @@ namespace BudgetPlanner8.DAL.Models
         public Category? Category { get; set; }
         public Recurrence Recurrence { get; set; }
     public bool IsActive { get; set; }
-        public Month Month{ get; set; }
+        public Month? Month{ get; set; }
         public decimal? Rate { get; set; }
         public TransactionType Type { get; set; }
         public AdjustmentType RateAdjustmentType => Category?.AdjustmentType ?? AdjustmentType.Deduction;

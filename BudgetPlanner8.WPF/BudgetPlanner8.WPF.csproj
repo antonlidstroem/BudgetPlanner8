@@ -8,4 +8,8 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BudgetPlanner8.DAL\BudgetPlanner8.DAL.csproj" />
+  </ItemGroup>
+
 </Project>
