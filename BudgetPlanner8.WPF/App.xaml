@@ -15,7 +15,7 @@
 
             <!-- Merged Styles -->
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Views/Styles/Styles.xaml"/>
+                <ResourceDictionary Source="Views/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
         </ResourceDictionary>
