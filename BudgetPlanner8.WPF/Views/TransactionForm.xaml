@@ -6,7 +6,98 @@
              xmlns:local="clr-namespace:BudgetPlanner8.WPF.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
-    </Grid>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="15">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="140"/>
+                <ColumnDefinition Width="260"/>
+                <ColumnDefinition Width="120"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Rubrik -->
+                <RowDefinition Height="Auto"/>
+                <!-- Startdatum -->
+                <RowDefinition Height="Auto"/>
+                <!-- Slutdatum -->
+                <RowDefinition Height="Auto"/>
+                <!-- Anteckning -->
+                <RowDefinition Height="Auto"/>
+                <!-- Belopp -->
+                <RowDefinition Height="Auto"/>
+                <!-- Kategori -->
+                <RowDefinition Height="Auto"/>
+                <!-- Återkommande -->
+                <RowDefinition Height="Auto"/>
+                <!-- Månad -->
+                <RowDefinition Height="Auto"/>
+                <!-- Procentsats -->
+                <RowDefinition Height="Auto"/>
+                <!-- Knappar -->
+            </Grid.RowDefinitions>
+
+            <!-- Rubrik -->
+            <TextBlock Grid.Row="0" Grid.ColumnSpan="3"
+                       Text="{Binding FormTitle}"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       Margin="0,0,0,15"/>
+
+            <!-- Startdatum -->
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Startdatum:" VerticalAlignment="Center"/>
+            <DatePicker Grid.Row="1" Grid.Column="1"
+                        Width="250"
+                        SelectedDate="{Binding Form.StartDate, Mode=TwoWay}"/>
+
+            <!-- Slutdatum -->
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Slutdatum:" VerticalAlignment="Center"/>
+            <DatePicker Grid.Row="2" Grid.Column="1"
+                        Width="250"
+                        SelectedDate="{Binding Form.EndDate, Mode=TwoWay}"/>
+
+            <!-- Anteckning -->
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="Anteckning:" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="3" Grid.Column="1" Width="250"
+                     Text="{Binding Form.Description, Mode=TwoWay}"/>
+
+            <!-- Belopp -->
+            <TextBlock Grid.Row="4" Grid.Column="0" Text="Belopp:" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="4" Grid.Column="1" Width="250"
+                     Text="{Binding Form.NetAmount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <!-- Kategori -->
+            <TextBlock Grid.Row="5" Grid.Column="0" Text="Kategori:" VerticalAlignment="Center"/>
+            <ComboBox Grid.Row="5" Grid.Column="1" Width="250"
+                      ItemsSource="{Binding Categories}"
+                      SelectedItem="{Binding Form.Category}"/>
+
+            <!-- Återkommande -->
+            <TextBlock Grid.Row="6" Grid.Column="0" Text="Återkommande:" VerticalAlignment="Center"/>
+            <ComboBox Grid.Row="6" Grid.Column="1" Width="250"
+                      ItemsSource="{Binding Form.RecurrenceValues}"
+                      SelectedItem="{Binding Form.Recurrence}"/>
+
+            <!-- Månad -->
+            <TextBlock Grid.Row="7" Grid.Column="0" Text="Månad:" VerticalAlignment="Center"/>
+            <ComboBox Grid.Row="7" Grid.Column="1" Width="250"
+                      ItemsSource="{Binding Form.Months}"
+                      SelectedItem="{Binding Form.Month}"/>
+
+            <!-- Procentsats -->
+            <TextBlock Grid.Row="8" Grid.Column="0" Text="Procentsats:" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="8" Grid.Column="1" Width="120"
+                     Text="{Binding Form.Rate, Mode=TwoWay}"/>
+
+            <!-- Knappar -->
+            <StackPanel Grid.Row="9" Grid.ColumnSpan="3" Orientation="Horizontal" Margin="0,15,0,0">
+                <Button Content="Lägg till" Width="90" Command="{Binding AddCommand}"/>
+                <Button Content="Uppdatera" Width="90" Command="{Binding UpdateCommand}"/>
+                <Button Content="Avbryt" Width="90" Command="{Binding CancelEditCommand}"/>
+                <Button Content="Ta bort" Width="90" Command="{Binding DeleteCommand}"/>
+            </StackPanel>
+
+        </Grid>
+    </ScrollViewer>
 </UserControl>
