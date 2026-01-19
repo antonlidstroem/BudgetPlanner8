@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing.Text;
 using System.Text;
 using BudgetPlanner8.DAL.Models;
@@ -9,8 +10,8 @@ namespace BudgetPlanner8.WPF.ViewModels
 {
     public class TransactionsFormViewModel : ViewModelBase
     {
-        private TransactionItemsViewModel selectedTransaction;
-        public TransactionItemsViewModel SelectedTransaction
+        private TransactionItemsViewModel? selectedTransaction;
+        public TransactionItemsViewModel? SelectedTransaction
         {
             get => selectedTransaction;
             set
@@ -19,11 +20,12 @@ namespace BudgetPlanner8.WPF.ViewModels
                 {
                     selectedTransaction = value;
                     RaisePropertyChanged(nameof(SelectedTransaction));
-                    LoadFromTransaction();
+                    //LoadFromTransaction(selectedTransaction, categories);
                 }
             }
         }
 
+        public ObservableCollection<Category> Categories { get; } = new();
 
         #region Properties
         private DateTime startDate = DateTime.Today;
@@ -197,24 +199,28 @@ namespace BudgetPlanner8.WPF.ViewModels
             RaiseAllProperties();
         }
 
-        public void LoadFromTransaction()
+        public void LoadFromTransaction(TransactionItemsViewModel? transaction, ObservableCollection<Category> categories)
         {
-            if (SelectedTransaction == null) return;
+            if (transaction == null) return;
 
-            StartDate = SelectedTransaction.StartDate;
-            EndDate = SelectedTransaction.EndDate;
-            NetAmount = SelectedTransaction.NetAmount;
-            GrossAmount = SelectedTransaction.GrossAmount;
-            Description = SelectedTransaction.Description;
-            Category = SelectedTransaction.Category;
-            Recurrence = SelectedTransaction.Recurrence;
-            Month = SelectedTransaction.Month;
-            Rate = SelectedTransaction.Rate;
-            Type = SelectedTransaction.Type;
-            IsActive = SelectedTransaction.IsActive;
+            StartDate = transaction.StartDate;
+            EndDate = transaction.EndDate;
+            NetAmount = transaction.NetAmount;
+            GrossAmount = transaction.GrossAmount;
+            Description = transaction.Description;
+
+            Category = categories.FirstOrDefault(c => c.Id == transaction.Category?.Id);
+
+            Recurrence = transaction.Recurrence;
+            Month = transaction.Month;
+            Rate = transaction.Rate;
+            Type = transaction.Type;
+            IsActive = transaction.IsActive;
 
             RaiseAllProperties();
         }
+
+
 
         private void RaiseAllProperties()
         {

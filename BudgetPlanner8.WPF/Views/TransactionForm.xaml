@@ -71,7 +71,8 @@
             <TextBlock Grid.Row="5" Grid.Column="0" Text="Kategori:" VerticalAlignment="Center"/>
             <ComboBox Grid.Row="5" Grid.Column="1" Width="250"
                       ItemsSource="{Binding Categories}"
-                      SelectedItem="{Binding Form.Category}"/>
+                      DisplayMemberPath="Name"
+                      SelectedItem="{Binding Form.Category, Mode=TwoWay}"/>
 
             <!-- Återkommande -->
             <TextBlock Grid.Row="6" Grid.Column="0" Text="Återkommande:" VerticalAlignment="Center"/>
