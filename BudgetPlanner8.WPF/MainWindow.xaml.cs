@@ -8,6 +8,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using BudgetPlanner8.WPF;
+using BudgetPlanner8.WPF.ViewModels;
 
 namespace BudgetPlanner8.WPF
 {
@@ -16,9 +18,12 @@ namespace BudgetPlanner8.WPF
     /// </summary>
     public partial class MainWindow : Window
     {
+        private TransactionsViewModel viewModel;
         public MainWindow()
         {
             InitializeComponent();
+            viewModel = new TransactionsViewModel();
+            DataContext = viewModel;
         }
     }
 }
