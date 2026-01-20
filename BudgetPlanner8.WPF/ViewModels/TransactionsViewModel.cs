@@ -86,6 +86,32 @@ namespace BudgetPlanner8.WPF.ViewModels
             repository = repo ?? new BudgetTransactionRepository(factory.CreateDbContext(null));
             TransactionsView = CollectionViewSource.GetDefaultView(Transactions);
 
+            TransactionsView.Filter = t =>
+            {
+                if (t is not TransactionItemsViewModel vm) return false;
+                return FormFilter.Matches(vm);
+            };
+
+            // När en checkbox ändras i FormFilter
+            FormFilter.PropertyChanged += (_, __) => TransactionsView.Refresh();
+
+            // När ett formulärfält ändras, uppdatera filtervärdet och refresh
+            Form.PropertyChanged += (_, e) =>
+            {
+                switch (e.PropertyName)
+                {
+                    case nameof(Form.StartDate): FormFilter.FilterStartDate = Form.StartDate; break;
+                    case nameof(Form.EndDate): FormFilter.FilterEndDate = Form.EndDate; break;
+                    case nameof(Form.Description): FormFilter.FilterDescription = Form.Description; break;
+                    case nameof(Form.NetAmount): FormFilter.FilterAmount = Form.NetAmount; break;
+                    case nameof(Form.Category): FormFilter.FilterCategory = Form.Category; break;
+                    case nameof(Form.Recurrence): FormFilter.FilterRecurrence = Form.Recurrence; break;
+                    case nameof(Form.Month): FormFilter.FilterMonth = Form.Month; break;
+                }
+                TransactionsView.Refresh();
+            };
+
+
             AddCommand = new DelegateCommand(async param => await AddTransaction(param), _ => Form.Category != null);
             UpdateCommand = new DelegateCommand(async param => await UpdateTransaction(param), _ => SelectedTransaction != null);
             DeleteCommand = new DelegateCommand(async param => await DeleteTransaction(param), _ => SelectedTransaction != null);
@@ -94,9 +120,18 @@ namespace BudgetPlanner8.WPF.ViewModels
                 SelectedTransaction = null;
                 Form.Clear();
             });
+            ClearFilterCommand = new DelegateCommand(_ =>
+            {
+                FormFilter.FilterByStartDate = false;
+                FormFilter.FilterByEndDate = false;
+                FormFilter.FilterByDescription = false;
+                FormFilter.FilterByAmount = false;
+                FormFilter.FilterByCategory = false;
+                FormFilter.FilterByRecurrence = false;
+                FormFilter.FilterByMonth = false;
 
-
-            //ClearFilterCommand = new DelegateCommand(_ => { /* ... */ });
+                TransactionsView.Refresh();
+            });
 
             Form.CategoryChanged += () => AddCommand.RaiseCanExecuteChanged();
 

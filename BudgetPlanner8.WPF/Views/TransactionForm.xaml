@@ -54,7 +54,7 @@
                         Width="250"
                         SelectedDate="{Binding Form.StartDate, Mode=TwoWay}"/>
             <CheckBox Grid.Row="1" Grid.Column="2"
-             IsChecked="{Binding Filter.FilterByStartDate}"
+             IsChecked="{Binding FormFilter.FilterByStartDate}"
              VerticalAlignment="Center"/>
 
             <!-- Slutdatum -->
@@ -69,7 +69,7 @@
 
                 <TextBlock Grid.Column="0" Text="Slutdatum:" VerticalAlignment="Center"/>
                 <DatePicker Grid.Column="1" Width="250" SelectedDate="{Binding Form.EndDate}"/>
-                <CheckBox Grid.Column="2" IsChecked="{Binding Filter.FilterByEndDate}" VerticalAlignment="Center"/>
+                <CheckBox Grid.Column="2" IsChecked="{Binding FormFilter.FilterByEndDate}" VerticalAlignment="Center"/>
             </Grid>
 
 
@@ -78,7 +78,7 @@
             <TextBox Grid.Row="3" Grid.Column="1" Width="250"
                      Text="{Binding Form.Description, Mode=TwoWay}"/>
             <CheckBox Grid.Row="3" Grid.Column="2"
-              IsChecked="{Binding Filter.FilterByDescription}"
+              IsChecked="{Binding FormFilter.FilterByDescription}"
               VerticalAlignment="Center"/>
 
             <!-- Belopp -->
@@ -86,7 +86,7 @@
             <TextBox Grid.Row="4" Grid.Column="1" Width="250"
                      Text="{Binding Form.NetAmount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <CheckBox Grid.Row="4" Grid.Column="2"
-              IsChecked="{Binding Filter.FilterByAmount}"
+              IsChecked="{Binding FormFilter.FilterByAmount}"
               VerticalAlignment="Center"/>
 
             <!-- Kategori -->
@@ -97,7 +97,7 @@
                       ItemContainerStyle="{StaticResource CategoryComboBoxItemStyle}"
                       SelectedItem="{Binding Form.Category, Mode=TwoWay}"/>
             <CheckBox Grid.Row="5" Grid.Column="2"
-              IsChecked="{Binding Filter.FilterByCategory}"
+              IsChecked="{Binding FormFilter.FilterByCategory}"
               VerticalAlignment="Center"/>
 
             <!-- Återkommande -->
@@ -106,7 +106,7 @@
                       ItemsSource="{Binding Form.RecurrenceValues}"
                       SelectedItem="{Binding Form.Recurrence}"/>
             <CheckBox Grid.Row="6" Grid.Column="2"
-              IsChecked="{Binding Filter.FilterByRecurrence}"
+              IsChecked="{Binding FormFilter.FilterByRecurrence}"
               VerticalAlignment="Center"/>
 
             <!-- Månad -->
@@ -120,7 +120,7 @@
 
                 <TextBlock Grid.Column="0" Text="Månad:" VerticalAlignment="Center"/>
                 <ComboBox Grid.Column="1" Width="250" ItemsSource="{Binding Form.Months}" SelectedItem="{Binding Form.Month}"/>
-                <CheckBox Grid.Column="2" IsChecked="{Binding Filter.FilterByMonth}" VerticalAlignment="Center"/>
+                <CheckBox Grid.Column="2" IsChecked="{Binding FormFilter.FilterByMonth}" VerticalAlignment="Center"/>
             </Grid>
 
 
