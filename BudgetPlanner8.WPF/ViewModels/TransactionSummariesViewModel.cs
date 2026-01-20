@@ -25,6 +25,8 @@ public class TransactionSummariesViewModel : ViewModelBase
                         item.PropertyChanged -= Item_PropertyChanged;
 
                 RecalculateTotal();
+                RecalculateFilteredTotal(); // <-- lägg till denna rad
+
             };
 
         // Lägg till PropertyChanged på befintliga objekt
@@ -42,8 +44,31 @@ public class TransactionSummariesViewModel : ViewModelBase
             e.PropertyName == nameof(TransactionItemsViewModel.Recurrence))
         {
             RecalculateTotal();
+            RecalculateFilteredTotal(); // <-- lägg till denna rad
         }
     }
+
+    private decimal filteredIncome;
+    public decimal FilteredIncome
+    {
+        get => filteredIncome;
+        set { filteredIncome = value; RaisePropertyChanged(); }
+    }
+
+    private decimal filteredExpenses;
+    public decimal FilteredExpenses
+    {
+        get => filteredExpenses;
+        set { filteredExpenses = value; RaisePropertyChanged(); }
+    }
+
+    private decimal filteredTotal;
+    public decimal FilteredTotal
+    {
+        get => filteredTotal;
+        set { filteredTotal = value; RaisePropertyChanged(); }
+    }
+
 
     private decimal monthlyIncome;
     public decimal MonthlyIncome
@@ -66,7 +91,7 @@ public class TransactionSummariesViewModel : ViewModelBase
         set { monthlyTotal = value; RaisePropertyChanged(); }
     }
 
-    private void RecalculateTotal()
+    public void RecalculateTotal()
     {
         decimal income = 0;
         decimal expenses = 0;
@@ -91,4 +116,31 @@ public class TransactionSummariesViewModel : ViewModelBase
         MonthlyExpenses = expenses;
         MonthlyTotal = income - expenses;
     }
+
+    public void RecalculateFilteredTotal()
+    {
+        if (transactionsView == null) return;
+
+        decimal income = 0;
+        decimal expenses = 0;
+
+        foreach (TransactionItemsViewModel item in transactionsView.Cast<TransactionItemsViewModel>()
+                 .Where(t => transactionsView.Filter == null || transactionsView.Filter(t)))
+        {
+            // Lägg till Onetime här
+            decimal amount = item.NetAmount; // Onetime räknas precis som det är
+
+            // Summera alla
+            if (amount >= 0)
+                income += amount;
+            else
+                expenses += -amount;
+        }
+
+        FilteredIncome = income;
+        FilteredExpenses = expenses;
+        FilteredTotal = income - expenses;
+    }
+
+
 }
