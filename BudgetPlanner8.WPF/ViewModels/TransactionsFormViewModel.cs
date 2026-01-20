@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Drawing.Text;
-using System.Text;
+﻿using System.Collections.ObjectModel;
 using BudgetPlanner8.DAL.Models;
 using BudgetPlanner8.WPF.ViewModels.Base;
 
@@ -24,6 +20,8 @@ namespace BudgetPlanner8.WPF.ViewModels
                 }
             }
         }
+
+        public event Action? CategoryChanged;
 
         public ObservableCollection<Category> Categories { get; } = new();
 
@@ -48,6 +46,15 @@ namespace BudgetPlanner8.WPF.ViewModels
         public Array Months { get; } =
         Enum.GetValues(typeof(Month));
 
+
+        public bool ShowGrossNetToggle =>
+        Category?.ToggleGrossNet == true;
+
+        public bool ShowEndDate =>
+        Category?.HasEndDate == true;
+
+        public bool ShowMonth =>
+        Recurrence == Recurrence.Yearly;
 
 
         private DateTime? endDate;
@@ -112,13 +119,26 @@ namespace BudgetPlanner8.WPF.ViewModels
             get => category;
             set
             {
-                if (category != value)
-                {
-                    category = value;
-                    RaisePropertyChanged(nameof(Category));
-                }
+                category = value;
+                RaisePropertyChanged(nameof(Category));
+                CategoryChanged?.Invoke();
+
+                if (!ShowEndDate)
+                    EndDate = null;
+
+                if (!ShowMonth)
+                    Month = null;
+
+                if (!ShowGrossNetToggle)
+                    GrossAmount = null;
+
+                RaisePropertyChanged(nameof(ShowGrossNetToggle));
+                RaisePropertyChanged(nameof(ShowEndDate));
+                RaisePropertyChanged(nameof(ShowMonth));
+
             }
         }
+        
 
         private Recurrence recurrence = Recurrence.OneTime;
         public Recurrence Recurrence
@@ -130,6 +150,7 @@ namespace BudgetPlanner8.WPF.ViewModels
                 {
                     recurrence = value;
                     RaisePropertyChanged(nameof(Recurrence));
+                    RaisePropertyChanged(nameof(ShowMonth));
                 }
             }
         }
@@ -204,7 +225,7 @@ namespace BudgetPlanner8.WPF.ViewModels
             Rate = null;
             Type = TransactionType.Expense;
             IsActive = true;
-            RaiseAllProperties();
+            //RaiseAllProperties();
         }
 
         public void LoadFromTransaction(TransactionItemsViewModel? transaction, ObservableCollection<Category> categories)
@@ -225,25 +246,25 @@ namespace BudgetPlanner8.WPF.ViewModels
             Type = transaction.Type;
             IsActive = transaction.IsActive;
 
-            RaiseAllProperties();
+            //RaiseAllProperties();
         }
 
 
 
-        private void RaiseAllProperties()
-        {
-            RaisePropertyChanged(nameof(StartDate));
-            RaisePropertyChanged(nameof(EndDate));
-            RaisePropertyChanged(nameof(NetAmount));
-            RaisePropertyChanged(nameof(GrossAmount));
-            RaisePropertyChanged(nameof(Description));
-            RaisePropertyChanged(nameof(Category));
-            RaisePropertyChanged(nameof(Recurrence));
-            RaisePropertyChanged(nameof(Month));
-            RaisePropertyChanged(nameof(Rate));
-            RaisePropertyChanged(nameof(Type));
-            RaisePropertyChanged(nameof(IsActive));
-        }
+        //private void RaiseAllProperties()
+        //{
+        //    RaisePropertyChanged(nameof(StartDate));
+        //    RaisePropertyChanged(nameof(EndDate));
+        //    RaisePropertyChanged(nameof(NetAmount));
+        //    RaisePropertyChanged(nameof(GrossAmount));
+        //    RaisePropertyChanged(nameof(Description));
+        //    RaisePropertyChanged(nameof(Category));
+        //    RaisePropertyChanged(nameof(Recurrence));
+        //    RaisePropertyChanged(nameof(Month));
+        //    RaisePropertyChanged(nameof(Rate));
+        //    RaisePropertyChanged(nameof(Type));
+        //    RaisePropertyChanged(nameof(IsActive));
+        //}
 
     }
 }

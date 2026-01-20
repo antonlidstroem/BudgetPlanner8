@@ -12,6 +12,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="140"/>
                 <ColumnDefinition Width="260"/>
+                <!--<ColumnDefinition Width="100"/>-->
                 <ColumnDefinition Width="120"/>
             </Grid.ColumnDefinitions>
 
@@ -35,6 +36,8 @@
                 <RowDefinition Height="Auto"/>
                 <!-- Procentsats -->
                 <RowDefinition Height="Auto"/>
+                <!--Brutto/Netto-->
+                <RowDefinition Height="Auto"/>
                 <!-- Knappar -->
             </Grid.RowDefinitions>
 
@@ -50,22 +53,41 @@
             <DatePicker Grid.Row="1" Grid.Column="1"
                         Width="250"
                         SelectedDate="{Binding Form.StartDate, Mode=TwoWay}"/>
+            <CheckBox Grid.Row="1" Grid.Column="2"
+             IsChecked="{Binding FormFilter.FilterByStartDate}"
+             VerticalAlignment="Center"/>
 
             <!-- Slutdatum -->
-            <TextBlock Grid.Row="2" Grid.Column="0" Text="Slutdatum:" VerticalAlignment="Center"/>
-            <DatePicker Grid.Row="2" Grid.Column="1"
-                        Width="250"
-                        SelectedDate="{Binding Form.EndDate, Mode=TwoWay}"/>
+
+            <Grid Grid.Row="2" Grid.ColumnSpan="3"
+      Visibility="{Binding Form.ShowEndDate, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="260"/>
+                    <ColumnDefinition Width="120"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="Slutdatum:" VerticalAlignment="Center"/>
+                <DatePicker Grid.Column="1" Width="250" SelectedDate="{Binding Form.EndDate}"/>
+                <CheckBox Grid.Column="2" IsChecked="{Binding FormFilter.FilterByEndDate}" VerticalAlignment="Center"/>
+            </Grid>
+
 
             <!-- Anteckning -->
             <TextBlock Grid.Row="3" Grid.Column="0" Text="Anteckning:" VerticalAlignment="Center"/>
             <TextBox Grid.Row="3" Grid.Column="1" Width="250"
                      Text="{Binding Form.Description, Mode=TwoWay}"/>
+            <CheckBox Grid.Row="3" Grid.Column="2"
+              IsChecked="{Binding FormFilter.FilterByDescription}"
+              VerticalAlignment="Center"/>
 
             <!-- Belopp -->
             <TextBlock Grid.Row="4" Grid.Column="0" Text="Belopp:" VerticalAlignment="Center"/>
             <TextBox Grid.Row="4" Grid.Column="1" Width="250"
                      Text="{Binding Form.NetAmount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <CheckBox Grid.Row="4" Grid.Column="2"
+              IsChecked="{Binding FormFilter.FilterByAmount}"
+              VerticalAlignment="Center"/>
 
             <!-- Kategori -->
             <TextBlock Grid.Row="5" Grid.Column="0" Text="Kategori:" VerticalAlignment="Center"/>
@@ -74,31 +96,62 @@
                       DisplayMemberPath="Name"
                       ItemContainerStyle="{StaticResource CategoryComboBoxItemStyle}"
                       SelectedItem="{Binding Form.Category, Mode=TwoWay}"/>
+            <CheckBox Grid.Row="5" Grid.Column="2"
+              IsChecked="{Binding FormFilter.FilterByCategory}"
+              VerticalAlignment="Center"/>
 
             <!-- Återkommande -->
             <TextBlock Grid.Row="6" Grid.Column="0" Text="Återkommande:" VerticalAlignment="Center"/>
             <ComboBox Grid.Row="6" Grid.Column="1" Width="250"
                       ItemsSource="{Binding Form.RecurrenceValues}"
                       SelectedItem="{Binding Form.Recurrence}"/>
+            <CheckBox Grid.Row="6" Grid.Column="2"
+              IsChecked="{Binding FormFilter.FilterByRecurrence}"
+              VerticalAlignment="Center"/>
 
             <!-- Månad -->
-            <TextBlock Grid.Row="7" Grid.Column="0" Text="Månad:" VerticalAlignment="Center"/>
-            <ComboBox Grid.Row="7" Grid.Column="1" Width="250"
-                      ItemsSource="{Binding Form.Months}"
-                      SelectedItem="{Binding Form.Month}"/>
+            <Grid Grid.Row="7" Grid.ColumnSpan="3"
+      Visibility="{Binding Form.ShowMonth, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="260"/>
+                    <ColumnDefinition Width="120"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="Månad:" VerticalAlignment="Center"/>
+                <ComboBox Grid.Column="1" Width="250" ItemsSource="{Binding Form.Months}" SelectedItem="{Binding Form.Month}"/>
+                <CheckBox Grid.Column="2" IsChecked="{Binding FormFilter.FilterByMonth}" VerticalAlignment="Center"/>
+            </Grid>
+
 
             <!-- Procentsats -->
             <TextBlock Grid.Row="8" Grid.Column="0" Text="Procentsats:" VerticalAlignment="Center"/>
             <TextBox Grid.Row="8" Grid.Column="1" Width="120"
                      Text="{Binding Form.Rate, Mode=TwoWay}"/>
 
+            <!--Brutto/Netto-->
+            <TextBlock Grid.Row="9" Grid.Column="0"
+               Text="Brutto / Netto"
+               Visibility="{Binding Form.ShowGrossNetToggle,
+                                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+            <CheckBox Grid.Row="9" Grid.Column="1"
+              Content="Netto / Brutto"
+              IsChecked="{Binding Form.IsGross}"
+              Visibility="{Binding Form.ShowGrossNetToggle,
+                                   Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+
             <!-- Knappar -->
-            <StackPanel Grid.Row="9" Grid.ColumnSpan="3" Orientation="Horizontal" Margin="0,15,0,0">
+            <StackPanel Grid.Row="10" Grid.ColumnSpan="3" Orientation="Horizontal" Margin="0,15,0,0">
                 <Button Content="Lägg till" Width="90" Command="{Binding AddCommand}"/>
                 <Button Content="Uppdatera" Width="90" Command="{Binding UpdateCommand}"/>
                 <Button Content="Avbryt" Width="90" Command="{Binding CancelEditCommand}"/>
                 <Button Content="Ta bort" Width="90" Command="{Binding DeleteCommand}"/>
             </StackPanel>
+
+
+
 
         </Grid>
     </ScrollViewer>

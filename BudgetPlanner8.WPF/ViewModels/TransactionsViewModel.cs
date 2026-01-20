@@ -32,6 +32,7 @@ namespace BudgetPlanner8.WPF.ViewModels
             {
                 categories = value;
                 RaisePropertyChanged(nameof(Categories));
+                AddCommand.RaiseCanExecuteChanged();
             }
         }
 
@@ -84,38 +85,64 @@ namespace BudgetPlanner8.WPF.ViewModels
             var factory = new BudgetDbContextFactory();
             repository = repo ?? new BudgetTransactionRepository(factory.CreateDbContext(null));
             TransactionsView = CollectionViewSource.GetDefaultView(Transactions);
-            //FormFilter.Filter = object => Filter.Matches((TransactionItemsViewModel)o);
 
-            AddCommand = new DelegateCommand(AddTransaction);
-            UpdateCommand = new DelegateCommand(UpdateTransaction, _ => SelectedTransaction != null);
-            DeleteCommand = new DelegateCommand(DeleteTransaction, _ => SelectedTransaction != null);
+            TransactionsView.Filter = t =>
+            {
+                if (t is not TransactionItemsViewModel vm) return false;
+                return FormFilter.Matches(vm);
+            };
+
+            // När en checkbox ändras i FormFilter
+            FormFilter.PropertyChanged += (_, __) => TransactionsView.Refresh();
+
+            // När ett formulärfält ändras, uppdatera filtervärdet och refresh
+            Form.PropertyChanged += (_, e) =>
+            {
+                switch (e.PropertyName)
+                {
+                    case nameof(Form.StartDate): FormFilter.FilterStartDate = Form.StartDate; break;
+                    case nameof(Form.EndDate): FormFilter.FilterEndDate = Form.EndDate; break;
+                    case nameof(Form.Description): FormFilter.FilterDescription = Form.Description; break;
+                    case nameof(Form.NetAmount): FormFilter.FilterAmount = Form.NetAmount; break;
+                    case nameof(Form.Category): FormFilter.FilterCategory = Form.Category; break;
+                    case nameof(Form.Recurrence): FormFilter.FilterRecurrence = Form.Recurrence; break;
+                    case nameof(Form.Month): FormFilter.FilterMonth = Form.Month; break;
+                }
+                TransactionsView.Refresh();
+            };
+
+
+            AddCommand = new DelegateCommand(async param => await AddTransaction(param), _ => Form.Category != null);
+            UpdateCommand = new DelegateCommand(async param => await UpdateTransaction(param), _ => SelectedTransaction != null);
+            DeleteCommand = new DelegateCommand(async param => await DeleteTransaction(param), _ => SelectedTransaction != null);
             CancelEditCommand = new DelegateCommand(_ =>
             {
                 SelectedTransaction = null;
                 Form.Clear();
             });
+            ClearFilterCommand = new DelegateCommand(_ =>
+            {
+                FormFilter.FilterByStartDate = false;
+                FormFilter.FilterByEndDate = false;
+                FormFilter.FilterByDescription = false;
+                FormFilter.FilterByAmount = false;
+                FormFilter.FilterByCategory = false;
+                FormFilter.FilterByRecurrence = false;
+                FormFilter.FilterByMonth = false;
 
-            //ClearFilterCommand = new DelegateCommand(_ => { /* ... */ });
+                TransactionsView.Refresh();
+            });
 
-             _ = LoadAsync();
+            Form.CategoryChanged += () => AddCommand.RaiseCanExecuteChanged();
+
+
+            _ = LoadAsync();
+   
+
         }
         #endregion
 
-        //private async Task LoadAsync()
-        //{
-        //    //Categories.Clear();
-        //    var categoriesb = await repository.GetCategoriesAsync();
-        //    foreach (var c in categories) 
-        //        Categories.Add(c);
 
-        //    ////Form.Categories.Clear();
-        //    //foreach (var c in categories)
-        //    //    Form.Categories.Add(c);
-
-        //    //Transactions.Clear();
-        //    var transactions = await repository.GetAllAsync();
-        //    foreach (var t in transactions) Transactions.Add(new TransactionItemsViewModel(t));
-        //}
 
         private async Task LoadAsync()
         {
@@ -130,13 +157,15 @@ namespace BudgetPlanner8.WPF.ViewModels
             var transactions = await repository.GetAllAsync();
             foreach (var t in transactions)
                 Transactions.Add(new TransactionItemsViewModel(t));
+
+            TransactionsView.MoveCurrentToFirst();
         }
 
 
 
 
         #region CRUD-metoder
-        private async void AddTransaction(object? _)
+        private async Task AddTransaction(object? _)
         {
             if (Form.Category == null)
                 return;
@@ -159,11 +188,11 @@ namespace BudgetPlanner8.WPF.ViewModels
             await repository.AddAsync(t);
             var vm = new TransactionItemsViewModel(t);
             Transactions.Add(vm);
-            SelectedTransaction = vm;
             Form.Clear();
+            SelectedTransaction = vm;
         }
 
-        private async void UpdateTransaction(object? _)
+        private async Task UpdateTransaction(object? _)
         {
             if (SelectedTransaction == null) return;
 
@@ -184,7 +213,7 @@ namespace BudgetPlanner8.WPF.ViewModels
             SelectedTransaction.RefreshFromModel();
         }
 
-        private async void DeleteTransaction(object? _)
+        private async Task DeleteTransaction(object? _)
         {
             if (SelectedTransaction == null) return;
 

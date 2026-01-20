@@ -29,15 +29,19 @@
                 Grid.Column="0"
                 Grid.Row="0"
                 Margin="0,0,12,0" />
-
+           
         <views:TransactionForm
-                Grid.Column="1"
-                Grid.Row="0"
-                Margin="0,0,12,0"/>
+        Grid.Column="1"
+        Grid.Row="0"
+        Margin="0,0,12,0"/>
+
+
 
         <views:Summaries 
-                Grid.Column="0"
-                Grid.Row="1"
-                Margin="0,0,12,0"/>
+        Grid.Column="0"
+        Grid.Row="1"
+        Margin="0,0,12,0"/>
+
+
     </Grid>
 </Window>
