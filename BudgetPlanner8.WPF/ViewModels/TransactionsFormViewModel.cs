@@ -57,6 +57,8 @@ namespace BudgetPlanner8.WPF.ViewModels
         Recurrence == Recurrence.Yearly;
 
 
+
+
         private DateTime? endDate;
         public DateTime? EndDate
         {
@@ -269,25 +271,6 @@ namespace BudgetPlanner8.WPF.ViewModels
             Type = transaction.Type;
             IsActive = transaction.IsActive;
 
-            //RaiseAllProperties();
         }
-
-
-
-        //private void RaiseAllProperties()
-        //{
-        //    RaisePropertyChanged(nameof(StartDate));
-        //    RaisePropertyChanged(nameof(EndDate));
-        //    RaisePropertyChanged(nameof(NetAmount));
-        //    RaisePropertyChanged(nameof(GrossAmount));
-        //    RaisePropertyChanged(nameof(Description));
-        //    RaisePropertyChanged(nameof(Category));
-        //    RaisePropertyChanged(nameof(Recurrence));
-        //    RaisePropertyChanged(nameof(Month));
-        //    RaisePropertyChanged(nameof(Rate));
-        //    RaisePropertyChanged(nameof(Type));
-        //    RaisePropertyChanged(nameof(IsActive));
-        //}
-
     }
 }

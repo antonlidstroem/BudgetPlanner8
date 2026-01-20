@@ -37,8 +37,6 @@ namespace BudgetPlanner8.WPF.ViewModels
             }
         }
 
-
-
         // Läser in ViewModels
         public TransactionsFormViewModel Form { get; } = new();
         public FormFilterViewModel FormFilter { get; } = new();
@@ -68,7 +66,7 @@ namespace BudgetPlanner8.WPF.ViewModels
                     selectedTransaction = value;
                     RaisePropertyChanged(nameof(SelectedTransaction));
 
-                    //Form.SelectedTransaction = selectedTransaction;
+                    Form.SelectedTransaction = selectedTransaction;
                     Form.LoadFromTransaction(selectedTransaction, categories);
 
                     UpdateCommand.RaiseCanExecuteChanged();

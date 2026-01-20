@@ -1,59 +1,94 @@
 ﻿using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
-using System.Windows.Data;
 using BudgetPlanner8.DAL.Models;
+using BudgetPlanner8.WPF.ViewModels;
 using BudgetPlanner8.WPF.ViewModels.Base;
 
-namespace BudgetPlanner8.WPF.ViewModels
+public class TransactionSummariesViewModel : ViewModelBase
 {
-    public class TransactionSummariesViewModel : ViewModelBase
+    private readonly ICollectionView transactionsView;
+
+    public TransactionSummariesViewModel(ICollectionView transactionsView)
     {
-        private readonly ICollectionView transactionsView;
+        this.transactionsView = transactionsView;
 
-        public TransactionSummariesViewModel(ICollectionView transactionsView)
+        // Lyssna på ändringar i collectionen (lägg till / ta bort)
+        if (transactionsView is INotifyCollectionChanged incc)
+            incc.CollectionChanged += (_, e) =>
+            {
+                if (e.NewItems != null)
+                    foreach (TransactionItemsViewModel item in e.NewItems)
+                        item.PropertyChanged += Item_PropertyChanged;
+
+                if (e.OldItems != null)
+                    foreach (TransactionItemsViewModel item in e.OldItems)
+                        item.PropertyChanged -= Item_PropertyChanged;
+
+                RecalculateTotal();
+            };
+
+        // Lägg till PropertyChanged på befintliga objekt
+        foreach (TransactionItemsViewModel item in transactionsView.Cast<TransactionItemsViewModel>())
+            item.PropertyChanged += Item_PropertyChanged;
+
+        // Initial beräkning
+        RecalculateTotal();
+    }
+
+    private void Item_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(TransactionItemsViewModel.NetAmount) ||
+            e.PropertyName == nameof(TransactionItemsViewModel.Type) ||
+            e.PropertyName == nameof(TransactionItemsViewModel.Recurrence))
         {
-            this.transactionsView = transactionsView;
-
-            // Lyssna på ändringar
-            transactionsView.CollectionChanged += (_, __) => RecalculateTotal();
-            transactionsView.CurrentChanged += (_, __) => RecalculateTotal();
-
-            // Initial beräkning
             RecalculateTotal();
         }
+    }
 
-        private decimal monthlyTotal;
-        public decimal MonthlyTotal
+    private decimal monthlyIncome;
+    public decimal MonthlyIncome
+    {
+        get => monthlyIncome;
+        set { monthlyIncome = value; RaisePropertyChanged(); }
+    }
+
+    private decimal monthlyExpenses;
+    public decimal MonthlyExpenses
+    {
+        get => monthlyExpenses;
+        set { monthlyExpenses = value; RaisePropertyChanged(); }
+    }
+
+    private decimal monthlyTotal;
+    public decimal MonthlyTotal
+    {
+        get => monthlyTotal;
+        set { monthlyTotal = value; RaisePropertyChanged(); }
+    }
+
+    private void RecalculateTotal()
+    {
+        decimal income = 0;
+        decimal expenses = 0;
+
+        foreach (var item in transactionsView.Cast<TransactionItemsViewModel>())
         {
-            get => monthlyTotal;
-            set
+            // Beräkna månadsbelopp
+            decimal monthlyAmount = item.Recurrence switch
             {
-                monthlyTotal = value;
-                RaisePropertyChanged(nameof(MonthlyTotal));
-            }
+                Recurrence.Monthly => item.NetAmount,
+                Recurrence.Yearly => item.NetAmount / 12,
+                _ => 0
+            };
+
+            if (monthlyAmount >= 0)
+                income += monthlyAmount;
+            else
+                expenses += -monthlyAmount; // ta absolutvärdet för utgifter
         }
 
-        private void RecalculateTotal()
-        {
-            if (transactionsView == null) return;
-
-            decimal total = 0;
-
-            foreach (var item in transactionsView.Cast<TransactionItemsViewModel>())
-            {
-                // Endast synliga
-                if (!transactionsView.Contains(item)) continue;
-
-                total += item.Recurrence switch
-                {
-                    Recurrence.Monthly => item.NetAmount,
-                    Recurrence.Yearly => item.NetAmount / 12,
-                    _ => 0
-                };
-            }
-
-            MonthlyTotal = total;
-        }
+        MonthlyIncome = income;
+        MonthlyExpenses = expenses;
+        MonthlyTotal = income - expenses;
     }
 }

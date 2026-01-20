@@ -150,9 +150,6 @@
                 <Button Content="Ta bort" Width="90" Command="{Binding DeleteCommand}"/>
             </StackPanel>
 
-
-
-
         </Grid>
     </ScrollViewer>
 </UserControl>
