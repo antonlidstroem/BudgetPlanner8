@@ -10,6 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using BudgetPlanner8.WPF.ViewModels;
 
 namespace BudgetPlanner8.WPF.Views
 {
@@ -21,6 +22,7 @@ namespace BudgetPlanner8.WPF.Views
         public TransactionListView()
         {
             InitializeComponent();
+            DataContext = new TransactionListViewModel();
         }
     }
 }
