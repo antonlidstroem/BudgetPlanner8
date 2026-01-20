@@ -202,7 +202,18 @@ namespace BudgetPlanner8.WPF.ViewModels
             var t = SelectedTransaction.Model;
             t.StartDate = Form.StartDate;
             t.EndDate = Form.EndDate;
-            t.NetAmount = Form.NetAmount;
+
+            // Korrigera NetAmount efter kategori
+            var netAmount = Form.NetAmount;
+            if (Form.Category != null)
+            {
+                if (Form.Category.Type == TransactionType.Expense)
+                    netAmount = -Math.Abs(netAmount);
+                else
+                    netAmount = Math.Abs(netAmount);
+            }
+            t.NetAmount = netAmount;
+
             t.GrossAmount = Form.GrossAmount;
             t.Description = Form.Description;
             t.CategoryId = Form.Category?.Id ?? 0;
@@ -215,6 +226,7 @@ namespace BudgetPlanner8.WPF.ViewModels
             await repository.UpdateAsync(t);
             SelectedTransaction.RefreshFromModel();
         }
+
 
         private async Task DeleteTransaction(object? _)
         {

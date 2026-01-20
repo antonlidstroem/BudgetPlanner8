@@ -39,8 +39,9 @@
                                         <Setter Property="Text" Value="{Binding NetAmount, StringFormat=C}" />
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding Type}" Value="Expense">
-                                                <Setter Property="Text" Value="{Binding NetAmount, StringFormat=-{0:C}}" />
+                                                <Setter Property="Text" Value="{Binding NetAmount, StringFormat={}{0:C}}" />
                                             </DataTrigger>
+
                                         </Style.Triggers>
                                     </Style>
                                 </TextBlock.Style>
