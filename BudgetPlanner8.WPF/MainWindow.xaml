@@ -37,10 +37,13 @@
 
 
 
-        <views:Summaries 
-        Grid.Column="0"
+        <views:Summaries
+        Grid.Column="1"
         Grid.Row="1"
-        Margin="0,0,12,0"/>
+        HorizontalAlignment="Right"
+        VerticalAlignment="Bottom"
+        DataContext="{Binding SummariesVM}"/>
+
 
 
     </Grid>

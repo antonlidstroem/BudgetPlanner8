@@ -4,14 +4,15 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text;
 using System.Windows.Data;
-using BudgetPlanner8.DAL.Repositories;
 using BudgetPlanner8.DAL.Data;
 using BudgetPlanner8.DAL.Interfaces;
 using BudgetPlanner8.DAL.Models;
+using BudgetPlanner8.DAL.Repositories;
 using BudgetPlanner8.WPF.Commands;
 using BudgetPlanner8.WPF.ViewModels;
 using BudgetPlanner8.WPF.ViewModels.Base;
 using BudgetPlanner8.WPF.ViewModels.Filter;
+using BudgetPlanner8.WPF.Views;
 
 namespace BudgetPlanner8.WPF.ViewModels
 {
@@ -37,11 +38,12 @@ namespace BudgetPlanner8.WPF.ViewModels
         }
 
 
+
         // Läser in ViewModels
         public TransactionsFormViewModel Form { get; } = new();
         public FormFilterViewModel FormFilter { get; } = new();
         public ListViewFilterViewModel ListViewFilter { get; } = new();
-
+        public TransactionSummariesViewModel SummariesVM { get; }
 
         // ListView
         public ICollectionView TransactionsView { get; }
@@ -135,6 +137,7 @@ namespace BudgetPlanner8.WPF.ViewModels
 
             Form.CategoryChanged += () => AddCommand.RaiseCanExecuteChanged();
 
+            SummariesVM = new TransactionSummariesViewModel(TransactionsView);
 
             _ = LoadAsync();
    
@@ -222,6 +225,8 @@ namespace BudgetPlanner8.WPF.ViewModels
             SelectedTransaction = null;
         }
         #endregion
+
+
 
     }
 }
