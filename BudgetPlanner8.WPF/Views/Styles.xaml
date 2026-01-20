@@ -10,4 +10,23 @@
         <!-- extra triggers kan läggas här senare -->
     </Style>
 
+    <Style x:Key="CategoryComboBoxItemStyle"
+       TargetType="ComboBoxItem">
+
+        <Setter Property="Padding" Value="4"/>
+        <Setter Property="Background" Value="Transparent"/>
+
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Type}" Value="Expense">
+                <Setter Property="Background" Value="#FFEBCCCC"/>
+            </DataTrigger>
+
+            <DataTrigger Binding="{Binding Type}" Value="Income">
+                <Setter Property="Background" Value="#FFD6F0D6"/>
+            </DataTrigger>
+        </Style.Triggers>
+
+    </Style>
+
+
 </ResourceDictionary>

@@ -42,6 +42,14 @@ namespace BudgetPlanner8.WPF.ViewModels
             }
         }
 
+        public Array RecurrenceValues { get; } =
+        Enum.GetValues(typeof(Recurrence));
+
+        public Array Months { get; } =
+        Enum.GetValues(typeof(Month));
+
+
+
         private DateTime? endDate;
         public DateTime? EndDate
         {
