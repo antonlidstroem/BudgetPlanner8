@@ -32,6 +32,7 @@ namespace BudgetPlanner8.WPF.ViewModels
             {
                 categories = value;
                 RaisePropertyChanged(nameof(Categories));
+                AddCommand.RaiseCanExecuteChanged();
             }
         }
 
@@ -84,38 +85,29 @@ namespace BudgetPlanner8.WPF.ViewModels
             var factory = new BudgetDbContextFactory();
             repository = repo ?? new BudgetTransactionRepository(factory.CreateDbContext(null));
             TransactionsView = CollectionViewSource.GetDefaultView(Transactions);
-            //FormFilter.Filter = object => Filter.Matches((TransactionItemsViewModel)o);
 
-            AddCommand = new DelegateCommand(AddTransaction);
-            UpdateCommand = new DelegateCommand(UpdateTransaction, _ => SelectedTransaction != null);
-            DeleteCommand = new DelegateCommand(DeleteTransaction, _ => SelectedTransaction != null);
+            AddCommand = new DelegateCommand(async param => await AddTransaction(param), _ => Form.Category != null);
+            UpdateCommand = new DelegateCommand(async param => await UpdateTransaction(param), _ => SelectedTransaction != null);
+            DeleteCommand = new DelegateCommand(async param => await DeleteTransaction(param), _ => SelectedTransaction != null);
             CancelEditCommand = new DelegateCommand(_ =>
             {
                 SelectedTransaction = null;
                 Form.Clear();
             });
 
+
             //ClearFilterCommand = new DelegateCommand(_ => { /* ... */ });
 
-             _ = LoadAsync();
+            Form.CategoryChanged += () => AddCommand.RaiseCanExecuteChanged();
+
+
+            _ = LoadAsync();
+   
+
         }
         #endregion
 
-        //private async Task LoadAsync()
-        //{
-        //    //Categories.Clear();
-        //    var categoriesb = await repository.GetCategoriesAsync();
-        //    foreach (var c in categories) 
-        //        Categories.Add(c);
 
-        //    ////Form.Categories.Clear();
-        //    //foreach (var c in categories)
-        //    //    Form.Categories.Add(c);
-
-        //    //Transactions.Clear();
-        //    var transactions = await repository.GetAllAsync();
-        //    foreach (var t in transactions) Transactions.Add(new TransactionItemsViewModel(t));
-        //}
 
         private async Task LoadAsync()
         {
@@ -130,13 +122,15 @@ namespace BudgetPlanner8.WPF.ViewModels
             var transactions = await repository.GetAllAsync();
             foreach (var t in transactions)
                 Transactions.Add(new TransactionItemsViewModel(t));
+
+            TransactionsView.MoveCurrentToFirst();
         }
 
 
 
 
         #region CRUD-metoder
-        private async void AddTransaction(object? _)
+        private async Task AddTransaction(object? _)
         {
             if (Form.Category == null)
                 return;
@@ -159,11 +153,11 @@ namespace BudgetPlanner8.WPF.ViewModels
             await repository.AddAsync(t);
             var vm = new TransactionItemsViewModel(t);
             Transactions.Add(vm);
-            SelectedTransaction = vm;
             Form.Clear();
+            SelectedTransaction = vm;
         }
 
-        private async void UpdateTransaction(object? _)
+        private async Task UpdateTransaction(object? _)
         {
             if (SelectedTransaction == null) return;
 
@@ -184,7 +178,7 @@ namespace BudgetPlanner8.WPF.ViewModels
             SelectedTransaction.RefreshFromModel();
         }
 
-        private async void DeleteTransaction(object? _)
+        private async Task DeleteTransaction(object? _)
         {
             if (SelectedTransaction == null) return;
 

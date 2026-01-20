@@ -22,7 +22,7 @@ namespace BudgetPlanner8.WPF.Views
         public TransactionListView()
         {
             InitializeComponent();
-            DataContext = new TransactionListViewModel();
+            //DataContext = new TransactionListViewModel();
         }
     }
 }

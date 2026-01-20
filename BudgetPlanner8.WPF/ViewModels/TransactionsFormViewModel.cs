@@ -21,6 +21,8 @@ namespace BudgetPlanner8.WPF.ViewModels
             }
         }
 
+        public event Action? CategoryChanged;
+
         public ObservableCollection<Category> Categories { get; } = new();
 
         #region Properties
@@ -119,6 +121,7 @@ namespace BudgetPlanner8.WPF.ViewModels
             {
                 category = value;
                 RaisePropertyChanged(nameof(Category));
+                CategoryChanged?.Invoke();
 
                 if (!ShowEndDate)
                     EndDate = null;
