@@ -29,12 +29,35 @@ namespace BudgetPlanner8.WPF.ViewModels
             }
         }
 
+        //public decimal NetAmount
+        //{
+        //    get { return model.NetAmount; }
+        //    set { model.NetAmount = value; RaisePropertyChanged(nameof(NetAmount));
+        //    }
+        //}
         public decimal NetAmount
         {
-            get { return model.NetAmount; }
-            set { model.NetAmount = value; RaisePropertyChanged(nameof(NetAmount));
+            get => model.NetAmount;
+            set
+            {
+                // Justera belopp beroende på kategori
+                if (Category != null)
+                {
+                    if (Category.Type == TransactionType.Expense) // enum jämförelse
+                        model.NetAmount = -Math.Abs(value); // alltid negativt
+                    else if (Category.Type == TransactionType.Income)
+                        model.NetAmount = Math.Abs(value); // alltid positivt
+                }
+                else
+                {
+                    model.NetAmount = value; // fallback om ingen kategori
+                }
+
+                RaisePropertyChanged(nameof(NetAmount));
             }
         }
+
+
 
         public decimal? GrossAmount
         {

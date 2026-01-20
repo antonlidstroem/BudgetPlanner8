@@ -4,14 +4,15 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text;
 using System.Windows.Data;
-using BudgetPlanner8.DAL.Repositories;
 using BudgetPlanner8.DAL.Data;
 using BudgetPlanner8.DAL.Interfaces;
 using BudgetPlanner8.DAL.Models;
+using BudgetPlanner8.DAL.Repositories;
 using BudgetPlanner8.WPF.Commands;
 using BudgetPlanner8.WPF.ViewModels;
 using BudgetPlanner8.WPF.ViewModels.Base;
 using BudgetPlanner8.WPF.ViewModels.Filter;
+using BudgetPlanner8.WPF.Views;
 
 namespace BudgetPlanner8.WPF.ViewModels
 {
@@ -36,12 +37,11 @@ namespace BudgetPlanner8.WPF.ViewModels
             }
         }
 
-
         // Läser in ViewModels
         public TransactionsFormViewModel Form { get; } = new();
         public FormFilterViewModel FormFilter { get; } = new();
         public ListViewFilterViewModel ListViewFilter { get; } = new();
-
+        public TransactionSummariesViewModel SummariesVM { get; }
 
         // ListView
         public ICollectionView TransactionsView { get; }
@@ -66,7 +66,7 @@ namespace BudgetPlanner8.WPF.ViewModels
                     selectedTransaction = value;
                     RaisePropertyChanged(nameof(SelectedTransaction));
 
-                    //Form.SelectedTransaction = selectedTransaction;
+                    Form.SelectedTransaction = selectedTransaction;
                     Form.LoadFromTransaction(selectedTransaction, categories);
 
                     UpdateCommand.RaiseCanExecuteChanged();
@@ -92,8 +92,15 @@ namespace BudgetPlanner8.WPF.ViewModels
                 return FormFilter.Matches(vm);
             };
 
+            SummariesVM = new TransactionSummariesViewModel(TransactionsView);
+
             // När en checkbox ändras i FormFilter
-            FormFilter.PropertyChanged += (_, __) => TransactionsView.Refresh();
+            FormFilter.PropertyChanged += (_, __) =>
+            {
+                TransactionsView.Refresh();                // uppdatera filter
+                SummariesVM.RecalculateFilteredTotal();    // uppdatera summor för synliga transaktioner
+            };
+
 
             // När ett formulärfält ändras, uppdatera filtervärdet och refresh
             Form.PropertyChanged += (_, e) =>
@@ -108,8 +115,11 @@ namespace BudgetPlanner8.WPF.ViewModels
                     case nameof(Form.Recurrence): FormFilter.FilterRecurrence = Form.Recurrence; break;
                     case nameof(Form.Month): FormFilter.FilterMonth = Form.Month; break;
                 }
-                TransactionsView.Refresh();
+
+                TransactionsView.Refresh();                // uppdatera filter
+                SummariesVM.RecalculateFilteredTotal();  // uppdatera "synliga transaktioner" summor
             };
+
 
 
             AddCommand = new DelegateCommand(async param => await AddTransaction(param), _ => Form.Category != null);
@@ -135,6 +145,7 @@ namespace BudgetPlanner8.WPF.ViewModels
 
             Form.CategoryChanged += () => AddCommand.RaiseCanExecuteChanged();
 
+            //SummariesVM = new TransactionSummariesViewModel(TransactionsView);
 
             _ = LoadAsync();
    
@@ -190,6 +201,9 @@ namespace BudgetPlanner8.WPF.ViewModels
             Transactions.Add(vm);
             Form.Clear();
             SelectedTransaction = vm;
+
+            SummariesVM.RecalculateTotal();         
+            SummariesVM.RecalculateFilteredTotal();
         }
 
         private async Task UpdateTransaction(object? _)
@@ -199,7 +213,18 @@ namespace BudgetPlanner8.WPF.ViewModels
             var t = SelectedTransaction.Model;
             t.StartDate = Form.StartDate;
             t.EndDate = Form.EndDate;
-            t.NetAmount = Form.NetAmount;
+
+            // Korrigera NetAmount efter kategori
+            var netAmount = Form.NetAmount;
+            if (Form.Category != null)
+            {
+                if (Form.Category.Type == TransactionType.Expense)
+                    netAmount = -Math.Abs(netAmount);
+                else
+                    netAmount = Math.Abs(netAmount);
+            }
+            t.NetAmount = netAmount;
+
             t.GrossAmount = Form.GrossAmount;
             t.Description = Form.Description;
             t.CategoryId = Form.Category?.Id ?? 0;
@@ -211,7 +236,11 @@ namespace BudgetPlanner8.WPF.ViewModels
 
             await repository.UpdateAsync(t);
             SelectedTransaction.RefreshFromModel();
+
+            SummariesVM.RecalculateTotal();
+            SummariesVM.RecalculateFilteredTotal();
         }
+
 
         private async Task DeleteTransaction(object? _)
         {
@@ -220,8 +249,13 @@ namespace BudgetPlanner8.WPF.ViewModels
             await repository.DeleteAsync(SelectedTransaction.Model);
             Transactions.Remove(SelectedTransaction);
             SelectedTransaction = null;
+
+            SummariesVM.RecalculateTotal();
+            SummariesVM.RecalculateFilteredTotal();
         }
         #endregion
+
+
 
     }
 }

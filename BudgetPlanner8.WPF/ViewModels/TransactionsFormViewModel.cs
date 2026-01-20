@@ -57,6 +57,8 @@ namespace BudgetPlanner8.WPF.ViewModels
         Recurrence == Recurrence.Yearly;
 
 
+
+
         private DateTime? endDate;
         public DateTime? EndDate
         {
@@ -79,11 +81,24 @@ namespace BudgetPlanner8.WPF.ViewModels
             {
                 if (netAmount != value)
                 {
-                    netAmount = value;
+                    // Justera efter kategori
+                    if (Category != null)
+                    {
+                        if (Category.Type == TransactionType.Expense)
+                            netAmount = -Math.Abs(value);
+                        else
+                            netAmount = Math.Abs(value);
+                    }
+                    else
+                    {
+                        netAmount = value;
+                    }
+
                     RaisePropertyChanged(nameof(NetAmount));
                 }
             }
         }
+
 
         private decimal? grossAmount;
         public decimal? GrossAmount
@@ -123,6 +138,15 @@ namespace BudgetPlanner8.WPF.ViewModels
                 RaisePropertyChanged(nameof(Category));
                 CategoryChanged?.Invoke();
 
+                // Justera NetAmount direkt när kategori ändras
+                if (category != null)
+                {
+                    if (category.Type == TransactionType.Expense)
+                        NetAmount = -Math.Abs(NetAmount);
+                    else if (category.Type == TransactionType.Income)
+                        NetAmount = Math.Abs(NetAmount);
+                }
+
                 if (!ShowEndDate)
                     EndDate = null;
 
@@ -135,10 +159,11 @@ namespace BudgetPlanner8.WPF.ViewModels
                 RaisePropertyChanged(nameof(ShowGrossNetToggle));
                 RaisePropertyChanged(nameof(ShowEndDate));
                 RaisePropertyChanged(nameof(ShowMonth));
-
             }
         }
-        
+
+
+
 
         private Recurrence recurrence = Recurrence.OneTime;
         public Recurrence Recurrence
@@ -246,25 +271,6 @@ namespace BudgetPlanner8.WPF.ViewModels
             Type = transaction.Type;
             IsActive = transaction.IsActive;
 
-            //RaiseAllProperties();
         }
-
-
-
-        //private void RaiseAllProperties()
-        //{
-        //    RaisePropertyChanged(nameof(StartDate));
-        //    RaisePropertyChanged(nameof(EndDate));
-        //    RaisePropertyChanged(nameof(NetAmount));
-        //    RaisePropertyChanged(nameof(GrossAmount));
-        //    RaisePropertyChanged(nameof(Description));
-        //    RaisePropertyChanged(nameof(Category));
-        //    RaisePropertyChanged(nameof(Recurrence));
-        //    RaisePropertyChanged(nameof(Month));
-        //    RaisePropertyChanged(nameof(Rate));
-        //    RaisePropertyChanged(nameof(Type));
-        //    RaisePropertyChanged(nameof(IsActive));
-        //}
-
     }
 }
