@@ -35,6 +35,8 @@
                 <RowDefinition Height="Auto"/>
                 <!-- Procentsats -->
                 <RowDefinition Height="Auto"/>
+                <!--Brutto/Netto-->
+                <RowDefinition Height="Auto"/>
                 <!-- Knappar -->
             </Grid.RowDefinitions>
 
@@ -52,10 +54,13 @@
                         SelectedDate="{Binding Form.StartDate, Mode=TwoWay}"/>
 
             <!-- Slutdatum -->
-            <TextBlock Grid.Row="2" Grid.Column="0" Text="Slutdatum:" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Slutdatum:" VerticalAlignment="Center" 
+                       Visibility="{Binding Form.ShowEndDate, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <DatePicker Grid.Row="2" Grid.Column="1"
-                        Width="250"
-                        SelectedDate="{Binding Form.EndDate, Mode=TwoWay}"/>
+            Width="250"
+            SelectedDate="{Binding Form.EndDate}"
+            Visibility="{Binding Form.ShowEndDate,
+                                 Converter={StaticResource BoolToVisibilityConverter}}"/>
 
             <!-- Anteckning -->
             <TextBlock Grid.Row="3" Grid.Column="0" Text="Anteckning:" VerticalAlignment="Center"/>
@@ -82,18 +87,40 @@
                       SelectedItem="{Binding Form.Recurrence}"/>
 
             <!-- Månad -->
-            <TextBlock Grid.Row="7" Grid.Column="0" Text="Månad:" VerticalAlignment="Center"/>
-            <ComboBox Grid.Row="7" Grid.Column="1" Width="250"
-                      ItemsSource="{Binding Form.Months}"
-                      SelectedItem="{Binding Form.Month}"/>
+            <TextBlock Grid.Row="7" Grid.Column="0"
+                  Text="Månad:"
+                       VerticalAlignment="Center"
+                  Visibility="{Binding Form.ShowMonth,
+                                    Converter={StaticResource BoolToVisibilityConverter}}"/>
 
+            <ComboBox Grid.Row="7" Grid.Column="1"
+                  Width="250"
+                  ItemsSource="{Binding Form.Months}"
+                  SelectedItem="{Binding Form.Month}"
+                  Visibility="{Binding Form.ShowMonth,
+                                       Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+            
             <!-- Procentsats -->
             <TextBlock Grid.Row="8" Grid.Column="0" Text="Procentsats:" VerticalAlignment="Center"/>
             <TextBox Grid.Row="8" Grid.Column="1" Width="120"
                      Text="{Binding Form.Rate, Mode=TwoWay}"/>
 
+            <!--Brutto/Netto-->
+            <TextBlock Grid.Row="9" Grid.Column="0"
+               Text="Brutto / Netto"
+               Visibility="{Binding Form.ShowGrossNetToggle,
+                                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+            <CheckBox Grid.Row="9" Grid.Column="1"
+              Content="Netto / Brutto"
+              IsChecked="{Binding Form.IsGross}"
+              Visibility="{Binding Form.ShowGrossNetToggle,
+                                   Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+
             <!-- Knappar -->
-            <StackPanel Grid.Row="9" Grid.ColumnSpan="3" Orientation="Horizontal" Margin="0,15,0,0">
+            <StackPanel Grid.Row="10" Grid.ColumnSpan="3" Orientation="Horizontal" Margin="0,15,0,0">
                 <Button Content="Lägg till" Width="90" Command="{Binding AddCommand}"/>
                 <Button Content="Uppdatera" Width="90" Command="{Binding UpdateCommand}"/>
                 <Button Content="Avbryt" Width="90" Command="{Binding CancelEditCommand}"/>

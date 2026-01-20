@@ -44,6 +44,7 @@ namespace BudgetPlanner8.DAL.Models
         public AdjustmentType? AdjustmentType { get; set; }
         public string? Description { get; set; }
         public bool HasEndDate { get; set; } = false;
+
         public Category() { }
 
     }
