@@ -8,7 +8,7 @@ namespace BudgetPlanner8.WPF.ViewModels.Filter
     {
         public ListViewFilterViewModel()
         {
-            
+            // Planen för den här klassen är att kunna sortera data direkt i ListViews kolumner. Men jag hann inte så långt.
         }
     }
 }

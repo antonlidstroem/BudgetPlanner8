@@ -40,23 +40,7 @@ namespace BudgetPlanner8.WPF.ViewModels.Filter
         private bool _filterByMonth;
         public bool FilterByMonth { get => _filterByMonth; set { _filterByMonth = value; RaisePropertyChanged(); } }
 
-        //public bool Matches(TransactionItemsViewModel vm)
-        //{
-        //    //bool startDateMatch = !FilterByStartDate || vm.StartDate.Date == FilterStartDate?.Date;
-        //    //bool endDateMatch = !FilterByEndDate || vm.EndDate?.Date == FilterEndDate?.Date;
-        //    bool startDateMatch = !FilterByStartDate || (FilterStartDate.HasValue && vm.StartDate.Date == FilterStartDate.Value.Date);
-        //    bool endDateMatch = !FilterByEndDate || (!vm.EndDate.HasValue || FilterEndDate.HasValue && vm.EndDate.Value.Date == FilterEndDate.Value.Date);
-
-        //    bool descriptionMatch = !FilterByDescription || (vm.Description?.Contains(FilterDescription ?? "", StringComparison.InvariantCultureIgnoreCase) ?? false);
-        //    bool amountMatch = !FilterByAmount || vm.NetAmount == FilterAmount;
-        //    bool categoryMatch = !FilterByCategory || (vm.Category?.Id == FilterCategory?.Id);
-        //    bool recurrenceMatch = !FilterByRecurrence || vm.Recurrence == FilterRecurrence;
-        //    bool monthMatch = !FilterByMonth || vm.Month == FilterMonth;
-
-        //    return startDateMatch && endDateMatch && descriptionMatch && amountMatch
-        //           && categoryMatch && recurrenceMatch && monthMatch;
-        //}
-
+        // Metod för att kontrollera om en TransactionItemsViewModel matchar de aktiva filtren
         public bool Matches(TransactionItemsViewModel vm)
         {
             bool startDateMatch = !FilterByStartDate || (FilterStartDate.HasValue && vm.StartDate.Date >= FilterStartDate.Value.Date);

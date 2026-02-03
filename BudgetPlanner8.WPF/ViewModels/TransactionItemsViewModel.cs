@@ -29,12 +29,6 @@ namespace BudgetPlanner8.WPF.ViewModels
             }
         }
 
-        //public decimal NetAmount
-        //{
-        //    get { return model.NetAmount; }
-        //    set { model.NetAmount = value; RaisePropertyChanged(nameof(NetAmount));
-        //    }
-        //}
         public decimal NetAmount
         {
             get => model.NetAmount;
@@ -43,21 +37,19 @@ namespace BudgetPlanner8.WPF.ViewModels
                 // Justera belopp beroende på kategori
                 if (Category != null)
                 {
-                    if (Category.Type == TransactionType.Expense) // enum jämförelse
-                        model.NetAmount = -Math.Abs(value); // alltid negativt
+                    if (Category.Type == TransactionType.Expense) 
+                        model.NetAmount = -Math.Abs(value); 
                     else if (Category.Type == TransactionType.Income)
-                        model.NetAmount = Math.Abs(value); // alltid positivt
+                        model.NetAmount = Math.Abs(value); 
                 }
                 else
                 {
-                    model.NetAmount = value; // fallback om ingen kategori
+                    model.NetAmount = value; 
                 }
 
                 RaisePropertyChanged(nameof(NetAmount));
             }
         }
-
-
 
         public decimal? GrossAmount
         {
@@ -91,7 +83,6 @@ namespace BudgetPlanner8.WPF.ViewModels
             set { model.Rate = value; RaisePropertyChanged(nameof(Rate));
             }
         }
-
         public Category? Category
         {
             get { return model.Category; }
@@ -99,14 +90,12 @@ namespace BudgetPlanner8.WPF.ViewModels
                 RaisePropertyChanged(nameof(Category));
             }
         }
-
         public Recurrence Recurrence
         {
             get { return model.Recurrence; }
             set { model.Recurrence = value; RaisePropertyChanged(nameof(Recurrence));
             }
         }
-
         public bool IsActive
         {
             get { return model.IsActive; }
@@ -126,8 +115,6 @@ namespace BudgetPlanner8.WPF.ViewModels
                 }
             }
         }
-        
-
         public void RefreshFromModel()
         {
             RaisePropertyChanged(nameof(StartDate));

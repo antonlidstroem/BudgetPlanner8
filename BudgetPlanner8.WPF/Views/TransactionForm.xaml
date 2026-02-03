@@ -132,20 +132,18 @@
                     Style="{StaticResource EditModeButtonStyle}"
                     Command="{Binding AddCommand}"/>
 
-                                <Button Content="Uppdatera"
+                    <Button Content="Uppdatera"
                     Style="{StaticResource EditModeButtonStyle}"
                     Command="{Binding UpdateCommand}"/>
 
-                                <Button Content="Avbryt"
+                    <Button Content="Avbryt"
                     Style="{StaticResource EditModeButtonStyle}"
                     Command="{Binding CancelEditCommand}"/>
 
-                                <Button Content="Ta bort"
+                    <Button Content="Ta bort"
                     Style="{StaticResource EditModeButtonStyle}"
                     Command="{Binding DeleteCommand}"/>
-
                 </StackPanel>
-
             </Grid>
         </ScrollViewer>
     </Border>

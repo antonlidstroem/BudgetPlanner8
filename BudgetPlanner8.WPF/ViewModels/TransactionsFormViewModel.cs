@@ -16,7 +16,6 @@ namespace BudgetPlanner8.WPF.ViewModels
                 {
                     selectedTransaction = value;
                     RaisePropertyChanged(nameof(SelectedTransaction));
-                    //LoadFromTransaction(selectedTransaction, categories);
                 }
             }
         }

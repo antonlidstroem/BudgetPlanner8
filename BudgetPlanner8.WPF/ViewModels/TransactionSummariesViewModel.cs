@@ -98,7 +98,7 @@ public class TransactionSummariesViewModel : ViewModelBase
 
         foreach (var item in transactionsView.Cast<TransactionItemsViewModel>())
         {
-            // Beräkna månadsbelopp
+
             decimal monthlyAmount = item.Recurrence switch
             {
                 Recurrence.Monthly => item.NetAmount,
@@ -109,7 +109,7 @@ public class TransactionSummariesViewModel : ViewModelBase
             if (monthlyAmount >= 0)
                 income += monthlyAmount;
             else
-                expenses += -monthlyAmount; // ta absolutvärdet för utgifter
+                expenses += -monthlyAmount; 
         }
 
         MonthlyIncome = income;
@@ -127,10 +127,8 @@ public class TransactionSummariesViewModel : ViewModelBase
         foreach (TransactionItemsViewModel item in transactionsView.Cast<TransactionItemsViewModel>()
                  .Where(t => transactionsView.Filter == null || transactionsView.Filter(t)))
         {
-            // Lägg till Onetime här
-            decimal amount = item.NetAmount; // Onetime räknas precis som det är
+            decimal amount = item.NetAmount; 
 
-            // Summera alla
             if (amount >= 0)
                 income += amount;
             else
@@ -141,6 +139,4 @@ public class TransactionSummariesViewModel : ViewModelBase
         FilteredExpenses = expenses;
         FilteredTotal = income - expenses;
     }
-
-
 }
