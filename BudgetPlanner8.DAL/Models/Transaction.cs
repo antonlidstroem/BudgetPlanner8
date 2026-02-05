@@ -10,6 +10,7 @@ namespace BudgetPlanner8.DAL.Models
         Monthly,
         Yearly
     }
+
     public class Transaction
     {
         public int Id { get; set; }
@@ -21,12 +22,25 @@ namespace BudgetPlanner8.DAL.Models
         public int CategoryId { get; set; }
         public Category? Category { get; set; }
         public Recurrence Recurrence { get; set; }
-    public bool IsActive { get; set; }
-        public Month? Month{ get; set; }
+        public bool IsActive { get; set; }
+        public Month? Month { get; set; }
         public decimal? Rate { get; set; }
         public TransactionType Type { get; set; }
+        public int? DaysCount { get; set; }  // För VAB/Sjuk
+
         public AdjustmentType RateAdjustmentType => Category?.AdjustmentType ?? AdjustmentType.Deduction;
 
-
+        // Beräknad property för VAB
+        public decimal CalculatedAmount
+        {
+            get
+            {
+                if (DaysCount.HasValue && GrossAmount.HasValue && Rate.HasValue)
+                {
+                    return DaysCount.Value * GrossAmount.Value * (Rate.Value / 100);
+                }
+                return NetAmount;
+            }
+        }
     }
 }

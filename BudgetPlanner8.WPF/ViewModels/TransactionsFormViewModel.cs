@@ -35,28 +35,18 @@ namespace BudgetPlanner8.WPF.ViewModels
                 {
                     startDate = value;
                     RaisePropertyChanged(nameof(StartDate));
+                    CalculateDaysCount();
                 }
             }
         }
 
-        public Array RecurrenceValues { get; } =
-        Enum.GetValues(typeof(Recurrence));
+        public Array RecurrenceValues { get; } = Enum.GetValues(typeof(Recurrence));
+        public Array Months { get; } = Enum.GetValues(typeof(Month));
 
-        public Array Months { get; } =
-        Enum.GetValues(typeof(Month));
-
-
-        public bool ShowGrossNetToggle =>
-        Category?.ToggleGrossNet == true;
-
-        public bool ShowEndDate =>
-        Category?.HasEndDate == true;
-
-        public bool ShowMonth =>
-        Recurrence == Recurrence.Yearly;
-
-
-
+        public bool ShowGrossNetToggle => Category?.ToggleGrossNet == true;
+        public bool ShowEndDate => Category?.HasEndDate == true;
+        public bool ShowMonth => Recurrence == Recurrence.Yearly;
+        public bool ShowDaysCount => Category?.HasEndDate == true; // För VAB
 
         private DateTime? endDate;
         public DateTime? EndDate
@@ -68,6 +58,7 @@ namespace BudgetPlanner8.WPF.ViewModels
                 {
                     endDate = value;
                     RaisePropertyChanged(nameof(EndDate));
+                    CalculateDaysCount();
                 }
             }
         }
@@ -78,26 +69,24 @@ namespace BudgetPlanner8.WPF.ViewModels
             get => netAmount;
             set
             {
-                if (netAmount != value)
-                {
-                    // Justera efter kategori
-                    if (Category != null)
-                    {
-                        if (Category.Type == TransactionType.Expense)
-                            netAmount = -Math.Abs(value);
-                        else
-                            netAmount = Math.Abs(value);
-                    }
-                    else
-                    {
-                        netAmount = value;
-                    }
+                var adjustedValue = value;
 
+                // Justera efter kategori
+                if (Category != null)
+                {
+                    if (Category.Type == TransactionType.Expense)
+                        adjustedValue = -Math.Abs(value);
+                    else
+                        adjustedValue = Math.Abs(value);
+                }
+
+                if (netAmount != adjustedValue)
+                {
+                    netAmount = adjustedValue;
                     RaisePropertyChanged(nameof(NetAmount));
                 }
             }
         }
-
 
         private decimal? grossAmount;
         public decimal? GrossAmount
@@ -109,6 +98,7 @@ namespace BudgetPlanner8.WPF.ViewModels
                 {
                     grossAmount = value;
                     RaisePropertyChanged(nameof(GrossAmount));
+                    CalculateNetFromGross();
                 }
             }
         }
@@ -137,9 +127,13 @@ namespace BudgetPlanner8.WPF.ViewModels
                 RaisePropertyChanged(nameof(Category));
                 CategoryChanged?.Invoke();
 
-                // Justera NetAmount direkt när kategori ändras
+                // Sätt defaultvärden från kategori
                 if (category != null)
                 {
+                    if (category.DefaultRate.HasValue)
+                        Rate = category.DefaultRate.Value;
+
+                    // Justera NetAmount direkt när kategori ändras
                     if (category.Type == TransactionType.Expense)
                         NetAmount = -Math.Abs(NetAmount);
                     else if (category.Type == TransactionType.Income)
@@ -147,22 +141,26 @@ namespace BudgetPlanner8.WPF.ViewModels
                 }
 
                 if (!ShowEndDate)
+                {
                     EndDate = null;
+                    DaysCount = null;
+                }
 
                 if (!ShowMonth)
                     Month = null;
 
                 if (!ShowGrossNetToggle)
+                {
                     GrossAmount = null;
+                    Rate = null;
+                }
 
                 RaisePropertyChanged(nameof(ShowGrossNetToggle));
                 RaisePropertyChanged(nameof(ShowEndDate));
                 RaisePropertyChanged(nameof(ShowMonth));
+                RaisePropertyChanged(nameof(ShowDaysCount));
             }
         }
-
-
-
 
         private Recurrence recurrence = Recurrence.OneTime;
         public Recurrence Recurrence
@@ -203,6 +201,7 @@ namespace BudgetPlanner8.WPF.ViewModels
                 {
                     rate = value;
                     RaisePropertyChanged(nameof(Rate));
+                    CalculateNetFromGross();
                 }
             }
         }
@@ -234,7 +233,70 @@ namespace BudgetPlanner8.WPF.ViewModels
                 }
             }
         }
+
+        // DaysCount för VAB
+        private int? daysCount;
+        public int? DaysCount
+        {
+            get => daysCount;
+            set
+            {
+                if (daysCount != value)
+                {
+                    daysCount = value;
+                    RaisePropertyChanged(nameof(DaysCount));
+                    CalculateNetFromGross();
+                }
+            }
+        }
         #endregion
+
+        // Beräkna antal dagar automatiskt
+        private void CalculateDaysCount()
+        {
+            if (ShowDaysCount && EndDate.HasValue)
+            {
+                var days = (EndDate.Value - StartDate).Days + 1; // +1 för att inkludera startdagen
+                DaysCount = days > 0 ? days : null;
+            }
+        }
+
+        // Beräkna netto från brutto
+        private void CalculateNetFromGross()
+        {
+            if (!GrossAmount.HasValue || !Rate.HasValue || Category == null)
+                return;
+
+            decimal calculatedNet = 0;
+
+            // För VAB: Antal dagar × Dagslön × Procent
+            if (Category.Name == "VAB/Sjukfrånvaro" && DaysCount.HasValue)
+            {
+                calculatedNet = DaysCount.Value * GrossAmount.Value * (Rate.Value / 100);
+            }
+            // För vanliga transaktioner med brutto/netto
+            else
+            {
+                if (Category.AdjustmentType == AdjustmentType.Deduction)
+                {
+                    // T.ex. Lön: Brutto - 30% skatt = Netto
+                    calculatedNet = GrossAmount.Value * (1 - Rate.Value / 100);
+                }
+                else if (Category.AdjustmentType == AdjustmentType.Addition)
+                {
+                    // Om det behövs (t.ex. moms tillkommande)
+                    calculatedNet = GrossAmount.Value * (1 + Rate.Value / 100);
+                }
+            }
+
+            // Sätt NetAmount utan att trigga justering igen
+            netAmount = Category.Type == TransactionType.Expense
+                ? -Math.Abs(calculatedNet)
+                : Math.Abs(calculatedNet);
+
+            RaisePropertyChanged(nameof(NetAmount));
+        }
+
         public void Clear()
         {
             SelectedTransaction = null;
@@ -249,7 +311,7 @@ namespace BudgetPlanner8.WPF.ViewModels
             Rate = null;
             Type = TransactionType.Expense;
             IsActive = true;
-            //RaiseAllProperties();
+            DaysCount = null;
         }
 
         public void LoadFromTransaction(TransactionItemsViewModel? transaction, ObservableCollection<Category> categories)
@@ -261,15 +323,13 @@ namespace BudgetPlanner8.WPF.ViewModels
             NetAmount = transaction.NetAmount;
             GrossAmount = transaction.GrossAmount;
             Description = transaction.Description;
-
             Category = categories.FirstOrDefault(c => c.Id == transaction.Category?.Id);
-
             Recurrence = transaction.Recurrence;
             Month = transaction.Month;
             Rate = transaction.Rate;
             Type = transaction.Type;
             IsActive = transaction.IsActive;
-
+            DaysCount = transaction.DaysCount;
         }
     }
 }

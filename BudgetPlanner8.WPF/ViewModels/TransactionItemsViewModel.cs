@@ -19,13 +19,21 @@ namespace BudgetPlanner8.WPF.ViewModels
         public DateTime StartDate
         {
             get { return model.StartDate; }
-            set { model.StartDate = value; RaisePropertyChanged(nameof(StartDate));
+            set
+            {
+                model.StartDate = value;
+                RaisePropertyChanged(nameof(StartDate));
             }
         }
+
         public DateTime? EndDate
         {
             get { return model.EndDate; }
-            set { model.EndDate = value; RaisePropertyChanged(nameof(EndDate));
+            set
+            {
+                model.EndDate = value;
+                RaisePropertyChanged(nameof(EndDate));
+                CalculateVabAmount();
             }
         }
 
@@ -34,72 +42,112 @@ namespace BudgetPlanner8.WPF.ViewModels
             get => model.NetAmount;
             set
             {
+                var adjustedValue = value;
+
                 // Justera belopp beroende på kategori
                 if (Category != null)
                 {
-                    if (Category.Type == TransactionType.Expense) 
-                        model.NetAmount = -Math.Abs(value); 
+                    if (Category.Type == TransactionType.Expense)
+                        adjustedValue = -Math.Abs(value);
                     else if (Category.Type == TransactionType.Income)
-                        model.NetAmount = Math.Abs(value); 
-                }
-                else
-                {
-                    model.NetAmount = value; 
+                        adjustedValue = Math.Abs(value);
                 }
 
-                RaisePropertyChanged(nameof(NetAmount));
+                if (model.NetAmount != adjustedValue)
+                {
+                    model.NetAmount = adjustedValue;
+                    RaisePropertyChanged(nameof(NetAmount));
+                }
             }
         }
 
         public decimal? GrossAmount
         {
             get => model.GrossAmount;
-            set { model.GrossAmount = value; RaisePropertyChanged(nameof(GrossAmount));
+            set
+            {
+                model.GrossAmount = value;
+                RaisePropertyChanged(nameof(GrossAmount));
+                CalculateVabAmount();
             }
         }
 
         public string? Description
         {
             get { return model.Description; }
-            set { model.Description = value; RaisePropertyChanged(nameof(Description));
+            set
+            {
+                model.Description = value;
+                RaisePropertyChanged(nameof(Description));
             }
         }
 
         public int CategoryId
         {
             get { return model.CategoryId; }
-            set { model.CategoryId = value; RaisePropertyChanged(nameof(CategoryId)); }
+            set
+            {
+                model.CategoryId = value;
+                RaisePropertyChanged(nameof(CategoryId));
+            }
         }
 
         public Month? Month
         {
             get { return model.Month; }
-            set { model.Month = value; RaisePropertyChanged(nameof(Month));}
+            set
+            {
+                model.Month = value;
+                RaisePropertyChanged(nameof(Month));
+            }
         }
 
         public decimal? Rate
         {
             get { return model.Rate; }
-            set { model.Rate = value; RaisePropertyChanged(nameof(Rate));
+            set
+            {
+                model.Rate = value;
+                RaisePropertyChanged(nameof(Rate));
+                CalculateVabAmount();
             }
         }
+
         public Category? Category
         {
             get { return model.Category; }
-            set { model.Category = value; model.CategoryId = value?.Id ?? 0;
+            set
+            {
+                model.Category = value;
+                model.CategoryId = value?.Id ?? 0;
                 RaisePropertyChanged(nameof(Category));
+
+                // Sätt defaultvärden från kategori
+                if (value != null)
+                {
+                    if (value.DefaultRate.HasValue && !Rate.HasValue)
+                        Rate = value.DefaultRate.Value;
+                }
             }
         }
+
         public Recurrence Recurrence
         {
             get { return model.Recurrence; }
-            set { model.Recurrence = value; RaisePropertyChanged(nameof(Recurrence));
+            set
+            {
+                model.Recurrence = value;
+                RaisePropertyChanged(nameof(Recurrence));
             }
         }
+
         public bool IsActive
         {
             get { return model.IsActive; }
-            set { model.IsActive = value; RaisePropertyChanged(nameof(IsActive));
+            set
+            {
+                model.IsActive = value;
+                RaisePropertyChanged(nameof(IsActive));
             }
         }
 
@@ -115,6 +163,36 @@ namespace BudgetPlanner8.WPF.ViewModels
                 }
             }
         }
+
+        // NY: DaysCount för VAB
+        public int? DaysCount
+        {
+            get => model.DaysCount;
+            set
+            {
+                model.DaysCount = value;
+                RaisePropertyChanged(nameof(DaysCount));
+                CalculateVabAmount();
+            }
+        }
+
+        // NY: Beräkna VAB-belopp automatiskt
+        private void CalculateVabAmount()
+        {
+            if (Category?.Name == "VAB/Sjukfrånvaro" &&
+                DaysCount.HasValue &&
+                GrossAmount.HasValue &&
+                Rate.HasValue)
+            {
+                // Beräkna: Antal dagar × Dagslön × Procent
+                var calculatedAmount = DaysCount.Value * GrossAmount.Value * (Rate.Value / 100);
+
+                // Sätt som negativt (utgift)
+                model.NetAmount = -Math.Abs(calculatedAmount);
+                RaisePropertyChanged(nameof(NetAmount));
+            }
+        }
+
         public void RefreshFromModel()
         {
             RaisePropertyChanged(nameof(StartDate));
@@ -128,6 +206,7 @@ namespace BudgetPlanner8.WPF.ViewModels
             RaisePropertyChanged(nameof(Type));
             RaisePropertyChanged(nameof(Rate));
             RaisePropertyChanged(nameof(IsActive));
+            RaisePropertyChanged(nameof(DaysCount));
         }
     }
 }

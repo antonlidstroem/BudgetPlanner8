@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Text;
 using System.Windows.Data;
 using BudgetPlanner8.DAL.Data;
@@ -19,10 +20,12 @@ namespace BudgetPlanner8.WPF.ViewModels
     public class TransactionsViewModel : ViewModelBase
     {
         #region Properties
-        // PROPERTIES
         private readonly IBudgetTransactionRepository repository;
 
         public ObservableCollection<TransactionItemsViewModel> Transactions { get; } = new();
+
+        // NY: Lista för markerade objekt
+        public ObservableCollection<TransactionItemsViewModel> SelectedTransactions { get; } = new();
 
         private ObservableCollection<Category> categories = new();
         public ObservableCollection<Category> Categories
@@ -48,10 +51,10 @@ namespace BudgetPlanner8.WPF.ViewModels
         // Commands
         public DelegateCommand AddCommand { get; }
         public DelegateCommand DeleteCommand { get; }
+        public DelegateCommand DeleteMultipleCommand { get; }  // NY
         public DelegateCommand UpdateCommand { get; }
         public DelegateCommand CancelEditCommand { get; }
         public DelegateCommand ClearFilterCommand { get; }
-
 
         // Edit mode
         private TransactionItemsViewModel? selectedTransaction;
@@ -73,12 +76,9 @@ namespace BudgetPlanner8.WPF.ViewModels
                 }
             }
         }
-
-
         #endregion
 
         #region Constructor
-        // KONSTRUKTOR
         public TransactionsViewModel(IBudgetTransactionRepository? repo = null)
         {
             var factory = new BudgetDbContextFactory();
@@ -93,15 +93,18 @@ namespace BudgetPlanner8.WPF.ViewModels
 
             SummariesVM = new TransactionSummariesViewModel(TransactionsView);
 
+            // NY: Lyssna på ändringar i SelectedTransactions
+            SelectedTransactions.CollectionChanged += (_, __) =>
+                DeleteMultipleCommand.RaiseCanExecuteChanged();
+
             // När en checkbox ändras i FormFilter
             FormFilter.PropertyChanged += (_, __) =>
             {
-                TransactionsView.Refresh();                
-                SummariesVM.RecalculateFilteredTotal();    
+                TransactionsView.Refresh();
+                SummariesVM.RecalculateFilteredTotal();
             };
 
-
-            // När ett formulärfält ändras, uppdatera filtervärdet och refresh
+            // När ett formulärfält ändras
             Form.PropertyChanged += (_, e) =>
             {
                 switch (e.PropertyName)
@@ -115,20 +118,33 @@ namespace BudgetPlanner8.WPF.ViewModels
                     case nameof(Form.Month): FormFilter.FilterMonth = Form.Month; break;
                 }
 
-                TransactionsView.Refresh();                
-                SummariesVM.RecalculateFilteredTotal();  
+                TransactionsView.Refresh();
+                SummariesVM.RecalculateFilteredTotal();
             };
 
+            AddCommand = new DelegateCommand(
+                async param => await AddTransaction(param),
+                _ => Form.Category != null);
 
+            UpdateCommand = new DelegateCommand(
+                async param => await UpdateTransaction(param),
+                _ => SelectedTransaction != null);
 
-            AddCommand = new DelegateCommand(async param => await AddTransaction(param), _ => Form.Category != null);
-            UpdateCommand = new DelegateCommand(async param => await UpdateTransaction(param), _ => SelectedTransaction != null);
-            DeleteCommand = new DelegateCommand(async param => await DeleteTransaction(param), _ => SelectedTransaction != null);
+            DeleteCommand = new DelegateCommand(
+                async param => await DeleteTransaction(param),
+                _ => SelectedTransaction != null);
+
+            // NY: Command för att ta bort flera
+            DeleteMultipleCommand = new DelegateCommand(
+                async param => await DeleteMultipleTransactions(param),
+                _ => SelectedTransactions.Any());
+
             CancelEditCommand = new DelegateCommand(_ =>
             {
                 SelectedTransaction = null;
                 Form.Clear();
             });
+
             ClearFilterCommand = new DelegateCommand(_ =>
             {
                 FormFilter.FilterByStartDate = false;
@@ -145,8 +161,6 @@ namespace BudgetPlanner8.WPF.ViewModels
             Form.CategoryChanged += () => AddCommand.RaiseCanExecuteChanged();
 
             _ = LoadAsync();
-   
-
         }
         #endregion
 
@@ -158,7 +172,6 @@ namespace BudgetPlanner8.WPF.ViewModels
             foreach (var c in categoriesFromDb)
                 Categories.Add(c);
 
-            // Fyll transaktioner
             Transactions.Clear();
             var transactions = await repository.GetAllAsync();
             foreach (var t in transactions)
@@ -185,7 +198,8 @@ namespace BudgetPlanner8.WPF.ViewModels
                 Month = Form.Month,
                 Rate = Form.Rate,
                 Type = Form.Type,
-                IsActive = Form.IsActive
+                IsActive = Form.IsActive,
+                DaysCount = Form.DaysCount  // NY
             };
 
             await repository.AddAsync(t);
@@ -194,7 +208,7 @@ namespace BudgetPlanner8.WPF.ViewModels
             Form.Clear();
             SelectedTransaction = vm;
 
-            SummariesVM.RecalculateTotal();         
+            SummariesVM.RecalculateTotal();
             SummariesVM.RecalculateFilteredTotal();
         }
 
@@ -225,6 +239,7 @@ namespace BudgetPlanner8.WPF.ViewModels
             t.Rate = Form.Rate;
             t.Type = Form.Type;
             t.IsActive = Form.IsActive;
+            t.DaysCount = Form.DaysCount;  // NY
 
             await repository.UpdateAsync(t);
             SelectedTransaction.RefreshFromModel();
@@ -232,6 +247,7 @@ namespace BudgetPlanner8.WPF.ViewModels
             SummariesVM.RecalculateTotal();
             SummariesVM.RecalculateFilteredTotal();
         }
+
         private async Task DeleteTransaction(object? _)
         {
             if (SelectedTransaction == null) return;
@@ -243,7 +259,28 @@ namespace BudgetPlanner8.WPF.ViewModels
             SummariesVM.RecalculateTotal();
             SummariesVM.RecalculateFilteredTotal();
         }
-        #endregion
 
+        // NY: Ta bort flera transaktioner samtidigt
+        private async Task DeleteMultipleTransactions(object? _)
+        {
+            if (!SelectedTransactions.Any()) return;
+
+            var transactionsToDelete = SelectedTransactions.Select(vm => vm.Model).ToList();
+
+            await repository.DeleteMultipleAsync(transactionsToDelete);
+
+            // Ta bort från UI
+            foreach (var vm in SelectedTransactions.ToList())
+            {
+                Transactions.Remove(vm);
+            }
+
+            SelectedTransactions.Clear();
+            SelectedTransaction = null;
+
+            SummariesVM.RecalculateTotal();
+            SummariesVM.RecalculateFilteredTotal();
+        }
+        #endregion
     }
 }

@@ -14,21 +14,34 @@
 
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
+                    <!-- 0: Rubrik -->
                     <RowDefinition Height="Auto"/>
+                    <!-- 1: Startdatum -->
                     <RowDefinition Height="Auto"/>
+                    <!-- 2: Slutdatum -->
                     <RowDefinition Height="Auto"/>
+                    <!-- 3: Anteckning -->
                     <RowDefinition Height="Auto"/>
+                    <!-- 4: Belopp -->
                     <RowDefinition Height="Auto"/>
+                    <!-- 5: Kategori -->
                     <RowDefinition Height="Auto"/>
+                    <!-- 6: Återkommande -->
                     <RowDefinition Height="Auto"/>
+                    <!-- 7: Månad -->
                     <RowDefinition Height="Auto"/>
+                    <!-- 8: Dagar (VAB) -->
                     <RowDefinition Height="Auto"/>
+                    <!-- 9: Dagslön/Brutto -->
                     <RowDefinition Height="Auto"/>
+                    <!-- 10: Procent -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- 11: Knappar -->
                 </Grid.RowDefinitions>
 
                 <!-- Rubrik -->
                 <TextBlock Grid.Row="0" Grid.ColumnSpan="3"
-                           Text="{Binding FormTitle}"
+                           Text="Transaktionsformulär"
                            Style="{StaticResource HeaderTextStyle}"
                            Margin="0,0,0,15"/>
 
@@ -70,7 +83,8 @@
                 <TextBlock Grid.Row="4" Text="Belopp:"
                            Style="{StaticResource LabelTextStyle}"/>
                 <TextBox Grid.Row="4" Grid.Column="1"
-                         Text="{Binding Form.NetAmount, UpdateSourceTrigger=PropertyChanged}"/>
+                         Text="{Binding Form.NetAmount, UpdateSourceTrigger=PropertyChanged}"
+                         IsReadOnly="{Binding Form.ShowGrossNetToggle}"/>
                 <CheckBox Grid.Row="4" Grid.Column="2"
                           IsChecked="{Binding FormFilter.FilterByAmount}"/>
 
@@ -82,7 +96,6 @@
                           DisplayMemberPath="Name"
                           SelectedItem="{Binding Form.Category}"
                           ItemContainerStyle="{StaticResource CategoryComboBoxItemStyle}"/>
-
                 <CheckBox Grid.Row="5" Grid.Column="2"
                           IsChecked="{Binding FormFilter.FilterByCategory}"/>
 
@@ -114,35 +127,84 @@
                               IsChecked="{Binding FormFilter.FilterByMonth}"/>
                 </Grid>
 
-                <!-- Brutto / Netto -->
-                <TextBlock Grid.Row="8" Text="Netto / Brutto"
-                           Style="{StaticResource LabelTextStyle}"
-                           Visibility="{Binding Form.ShowGrossNetToggle,
-                                                Converter={StaticResource BoolToVisibilityConverter}}"/>
-                <CheckBox Grid.Row="8" Grid.Column="1"
-                          Content="Ange som brutto"
-                          IsChecked="{Binding Form.IsGross}"
-                          Visibility="{Binding Form.ShowGrossNetToggle,
-                                               Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <!-- NY: Antal dagar (för VAB) -->
+                <Grid Grid.Row="8" Grid.ColumnSpan="3"
+                      Visibility="{Binding Form.ShowDaysCount,
+                                           Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="260"/>
+                        <ColumnDefinition Width="120"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Antal dagar:"
+                               Style="{StaticResource LabelTextStyle}"/>
+                    <TextBox Grid.Column="1"
+                             Text="{Binding Form.DaysCount, UpdateSourceTrigger=PropertyChanged}"
+                             IsReadOnly="True"/>
+                    <TextBlock Grid.Column="2" 
+                               Text="(Auto)"
+                               Style="{StaticResource HintTextStyle}"
+                               VerticalAlignment="Center"/>
+                </Grid>
+
+                <!-- NY: Dagslön/Brutto -->
+                <Grid Grid.Row="9" Grid.ColumnSpan="3"
+                      Visibility="{Binding Form.ShowGrossNetToggle,
+                                           Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="260"/>
+                        <ColumnDefinition Width="120"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Dagslön (brutto):"
+                               Style="{StaticResource LabelTextStyle}"/>
+                    <TextBox Grid.Column="1"
+                             Text="{Binding Form.GrossAmount, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
+
+                <!-- NY: Procent -->
+                <Grid Grid.Row="10" Grid.ColumnSpan="3"
+                      Visibility="{Binding Form.ShowGrossNetToggle,
+                                           Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="260"/>
+                        <ColumnDefinition Width="120"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Procent (%):"
+                               Style="{StaticResource LabelTextStyle}"/>
+                    <TextBox Grid.Column="1"
+                             Text="{Binding Form.Rate, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
 
                 <!-- Knappar -->
-                <StackPanel Grid.Row="9" Grid.ColumnSpan="3"
+                <StackPanel Grid.Row="11" Grid.ColumnSpan="3"
                             Orientation="Horizontal" Margin="0,15,0,0">
                     <Button Content="Lägg till"
-                    Style="{StaticResource EditModeButtonStyle}"
-                    Command="{Binding AddCommand}"/>
+                            Style="{StaticResource EditModeButtonStyle}"
+                            Command="{Binding AddCommand}"/>
 
                     <Button Content="Uppdatera"
-                    Style="{StaticResource EditModeButtonStyle}"
-                    Command="{Binding UpdateCommand}"/>
+                            Style="{StaticResource EditModeButtonStyle}"
+                            Command="{Binding UpdateCommand}"/>
 
                     <Button Content="Avbryt"
-                    Style="{StaticResource EditModeButtonStyle}"
-                    Command="{Binding CancelEditCommand}"/>
+                            Style="{StaticResource EditModeButtonStyle}"
+                            Command="{Binding CancelEditCommand}"/>
 
                     <Button Content="Ta bort"
-                    Style="{StaticResource EditModeButtonStyle}"
-                    Command="{Binding DeleteCommand}"/>
+                            Style="{StaticResource EditModeButtonStyle}"
+                            Command="{Binding DeleteCommand}"/>
+
+                    <!-- NY: Knapp för att ta bort flera -->
+                    <Button Content="Ta bort valda"
+                            Style="{StaticResource EditModeButtonStyle}"
+                            Command="{Binding DeleteMultipleCommand}"
+                            Background="#FFCDD2"
+                            Margin="10,2,2,2"/>
                 </StackPanel>
             </Grid>
         </ScrollViewer>
