@@ -1,124 +1,125 @@
 # BudgetPlanner8
 
-BudgetPlanner8 är en WPF-baserad desktopapplikation för budgetplanering, byggd med .NET och Entity Framework Core mot SQL Server. Projektet demonstrerar en tydlig uppdelning mellan presentation, affärslogik och datalager samt följer MVVM-principer för en strukturerad och skalbar arkitektur.
+BudgetPlanner8 is a WPF-based desktop application for budget planning, built with .NET and Entity Framework Core using SQL Server as the database. The project demonstrates a clean separation between presentation, business logic, and data access layers, following MVVM principles for a structured and scalable architecture.
 
-Applikationen är utvecklad som ett praktiskt exempel på hur man bygger en modern desktoplösning med persistens, databasmigreringar och tydlig separation av ansvar.
-
----
-
-## Översikt
-
-BudgetPlanner8 gör det möjligt att:
-
-- Skapa och hantera budgetposter
-- Registrera inkomster och utgifter
-- Kategorisera transaktioner
-- Lagra data i SQL Server via Entity Framework Core
-- Arbeta med en strukturerad MVVM-arkitektur
-- Bygga vidare på en tydlig och utbyggbar kodbas
-
-Projektet är uppdelat i separata lager för att skapa en tydlig och professionell struktur som lämpar sig väl för vidareutveckling och underhåll.
+This application serves as a practical example of how to build a modern desktop solution with persistent storage, database migrations, and a professional layered structure.
 
 ---
 
-## Teknikstack
+## Overview
+
+BudgetPlanner8 allows users to:
+
+- Create and manage budget entries
+- Register income and expenses
+- Categorize transactions
+- Persist data using SQL Server via Entity Framework Core
+- Work within a structured MVVM architecture
+- Extend and build upon a clean, maintainable codebase
+
+The project is divided into separate layers to ensure clarity, scalability, and maintainability.
+
+---
+
+## Tech Stack
 
 - .NET (WPF)
 - Entity Framework Core
 - SQL Server
-- MVVM-arkitektur
+- MVVM architecture
 - C#
 
 ---
 
-## Projektstruktur
+## Project Structure
 
-BudgetPlanner8/ ├── BudgetPlanner8.DAL/      # Data Access Layer (DbContext, entiteter, migrationer) ├── BudgetPlanner8.WPF/      # Presentation Layer (Views, ViewModels) ├── BudgetPlanner8.slnx      # Lösningsfil └── README.md
+BudgetPlanner8/ ├── BudgetPlanner8.DAL/      # Data Access Layer (DbContext, entities, migrations) ├── BudgetPlanner8.WPF/      # Presentation Layer (Views, ViewModels) ├── BudgetPlanner8.slnx      # Solution file └── README.md
 
 ### BudgetPlanner8.DAL
-Innehåller:
-- Entity-modeller
+Contains:
+- Entity models
 - DbContext
-- Databaslogik
-- Migrationer
+- Database configuration
+- EF Core migrations
 
 ### BudgetPlanner8.WPF
-Innehåller:
+Contains:
 - Views (XAML)
 - ViewModels
-- UI-logik enligt MVVM
+- UI logic following MVVM
 
 ---
 
-## Kom igång
+## Getting Started
 
-### Förutsättningar
+### Prerequisites
 
-- Visual Studio 2022 eller senare
-- .NET SDK (version enligt projektfil)
-- SQL Server (LocalDB, Express eller full version)
-- Entity Framework Core CLI (valfritt men rekommenderat)
+- Visual Studio 2022 or later
+- .NET SDK (version specified in the project file)
+- SQL Server (LocalDB, Express, or full version)
+- Entity Framework Core CLI tools (optional but recommended)
 
 ### Installation
 
-1. Klona repot
+1. Clone the repository
 
 git clone https://github.com/antonlidstroem/BudgetPlanner8.git cd BudgetPlanner8
 
-2. Uppdatera connection string
+2. Configure the connection string
 
-Öppna konfigurationen (exempelvis appsettings.json eller DbContext-konfigurationen) och ange din SQL Server-anslutning.
+Open the configuration file (e.g., appsettings.json or the DbContext configuration) and update it with your SQL Server connection string.
 
-3. Skapa databasen
+3. Apply database migrations
 
-Om projektet använder EF-migreringar:
+If the project uses EF migrations:
 
 dotnet ef database update --project .\BudgetPlanner8.DAL\
 
-4. Starta applikationen
+4. Run the application
 
-Öppna lösningen i Visual Studio och sätt `BudgetPlanner8.WPF` som startup-projekt. Kör applikationen.
+Open the solution in Visual Studio and set `BudgetPlanner8.WPF` as the startup project. Build and run the application.
 
 ---
 
-## Arkitektur och designprinciper
+## Architecture and Design Principles
 
-Projektet är uppbyggt enligt följande principer:
+The project follows these principles:
 
 - Separation of Concerns
 - MVVM (Model-View-ViewModel)
-- Tydlig uppdelning mellan UI och dataåtkomst
-- Entity Framework som ORM
-- Skalbar struktur för vidareutveckling
+- Clear separation between UI and data access
+- Entity Framework as ORM
+- Scalable and maintainable structure
 
-Detta gör projektet lämpligt som:
-- Utbildningsprojekt
-- Referensprojekt för WPF + EF Core
-- Grund för vidare produktutveckling
+This makes the project suitable as:
 
----
-
-## Vidareutveckling
-
-Möjliga förbättringar:
-
-- Implementera repository-mönster ovanpå EF
-- Lägga till validering med Data Annotations eller FluentValidation
-- Skapa enhetstester för affärslogik
-- Implementera rapportexport (PDF/CSV)
-- Lägga till diagram och visualisering av budgetdata
-- CI/CD med GitHub Actions
+- A learning project
+- A reference implementation for WPF + EF Core
+- A foundation for further product development
 
 ---
 
-## Bidra
+## Future Improvements
 
-Förslag, förbättringar och pull requests är välkomna.  
-Skapa gärna en issue om du hittar en bugg eller har en idé på förbättring.
+Possible enhancements:
+
+- Implement a repository pattern on top of EF
+- Add validation using Data Annotations or FluentValidation
+- Create unit tests for business logic
+- Implement export functionality (PDF/CSV)
+- Add charts and data visualization
+- Set up CI/CD with GitHub Actions
 
 ---
 
-## Licens
+## Contributing
 
-Detta projekt är öppet för utbildnings- och demonstrationssyfte.  
-Lägg till en specifik licens om projektet ska användas i produktion eller delas vidare offentligt.
+Contributions, improvements, and pull requests are welcome.  
+Feel free to open an issue if you find a bug or have suggestions.
+
+---
+
+## License
+
+This project is intended for educational and demonstration purposes.  
+Add a specific license if the project will be used in production or distributed publicly.
